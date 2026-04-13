@@ -5,11 +5,6 @@
   "windows": ["main"],
   "permissions": [
     "core:default",
-    "shell:allow-open",
-    "fs:read-all",
-    "fs:write-all",
-    "fs:scope-appdata-recursive",
-    "fs:scope-download-recursive",
-    "fs:scope-home-recursive"
+    "shell:allow-open"
   ]
 }
