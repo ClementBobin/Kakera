@@ -9,10 +9,14 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             commands::library::get_library,
             commands::library::sync_library,
+            commands::library::sync_category,
             commands::player::launch_ani_cli,
             commands::player::download_episode,
+            commands::player::download_anime,
             commands::settings::get_settings,
             commands::settings::save_settings,
+            commands::storage::read_json_file,
+            commands::storage::write_json_file,
         ])
         .run(tauri::generate_context!())
         .expect("error while running Kakera");
