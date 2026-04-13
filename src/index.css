@@ -1,3 +1,66 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Slate preset — light */
+[data-preset="slate"][data-theme="light"] {
+  --color-bg: #f1f5f9;
+  --color-surface: #ffffff;
+  --color-border: #e2e8f0;
+  --color-text: #0f172a;
+  --color-text-muted: #64748b;
+  --color-accent: #7c3aed;
+  --color-accent-hover: #6d28d9;
+}
+
+/* Slate preset — dark */
+[data-preset="slate"][data-theme="dark"],
+[data-preset="slate"]:not([data-theme]) {
+  --color-bg: #0f172a;
+  --color-surface: #1e293b;
+  --color-border: #334155;
+  --color-text: #f8fafc;
+  --color-text-muted: #94a3b8;
+  --color-accent: #7c3aed;
+  --color-accent-hover: #6d28d9;
+}
+
+/* Wallbash preset — light */
+[data-preset="wallbash"][data-theme="light"] {
+  --color-bg: #fef3e2;
+  --color-surface: #ffffff;
+  --color-border: #fed7aa;
+  --color-text: #431407;
+  --color-text-muted: #92400e;
+  --color-accent: #ea580c;
+  --color-accent-hover: #c2410c;
+}
+
+/* Wallbash preset — dark */
+[data-preset="wallbash"][data-theme="dark"],
+[data-preset="wallbash"]:not([data-theme]) {
+  --color-bg: #1c0a00;
+  --color-surface: #2d1500;
+  --color-border: #92400e;
+  --color-text: #fef3e2;
+  --color-text-muted: #fdba74;
+  --color-accent: #f97316;
+  --color-accent-hover: #ea580c;
+}
+
+/* Thin scrollbar utility */
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: #475569 transparent;
+}
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: #475569;
+  border-radius: 3px;
+}

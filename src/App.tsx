@@ -1,64 +1,42 @@
-import { useState } from 'react'
-import { useLibraryStore } from '@/stores/libraryStore'
+import { useState, useEffect } from 'react'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { AppLayout } from '@/components/layout/AppLayout'
+import { applyTheme } from '@/lib/theme'
+import { useSettingsStore } from '@/stores/settingsStore'
+import LibraryPage from '@/pages/LibraryPage'
+import CalendarPage from '@/pages/CalendarPage'
+import CollectionsPage from '@/pages/CollectionsPage'
 
-function App() {
-  const [activeTab, setActiveTab] = useState<'library' | 'calendar' | 'settings'>('library')
-  const { entries } = useLibraryStore()
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000,
+      retry: 1,
+    },
+  },
+})
+
+function AppInner() {
+  const [currentPage, setCurrentPage] = useState<'library' | 'calendar' | 'collections'>('library')
+  const settings = useSettingsStore((s) => s.settings)
+
+  useEffect(() => {
+    applyTheme(settings.theme, settings.themePreset)
+  }, [settings.theme, settings.themePreset])
 
   return (
-    <div className="min-h-screen bg-kakera-surface-dark text-white">
-      <nav aria-label="main navigation" className="flex items-center gap-4 border-b border-kakera-primary-700 px-6 py-3">
-        <span className="text-xl font-bold tracking-tight text-kakera-accent">KAKERA</span>
-        <button
-          className={`px-3 py-1 rounded ${activeTab === 'library' ? 'bg-kakera-primary-600' : 'hover:bg-kakera-primary-800'}`}
-          onClick={() => setActiveTab('library')}
-        >
-          Library
-        </button>
-        <button
-          className={`px-3 py-1 rounded ${activeTab === 'calendar' ? 'bg-kakera-primary-600' : 'hover:bg-kakera-primary-800'}`}
-          onClick={() => setActiveTab('calendar')}
-        >
-          Calendar
-        </button>
-        <button
-          className={`px-3 py-1 rounded ${activeTab === 'settings' ? 'bg-kakera-primary-600' : 'hover:bg-kakera-primary-800'}`}
-          onClick={() => setActiveTab('settings')}
-        >
-          Settings
-        </button>
-      </nav>
-
-      <main className="p-6">
-        {activeTab === 'library' && (
-          <div>
-            <h1 className="text-2xl font-semibold mb-4">My Library</h1>
-            {entries.length === 0 ? (
-              <p className="text-kakera-muted">No anime in your library yet. Sync with a tracking service to get started.</p>
-            ) : (
-              <ul>
-                {entries.map((anime) => (
-                  <li key={anime.id}>{anime.title.romaji}</li>
-                ))}
-              </ul>
-            )}
-          </div>
-        )}
-        {activeTab === 'calendar' && (
-          <div>
-            <h1 className="text-2xl font-semibold mb-4">Release Calendar</h1>
-            <p className="text-kakera-muted">Upcoming releases will appear here.</p>
-          </div>
-        )}
-        {activeTab === 'settings' && (
-          <div>
-            <h1 className="text-2xl font-semibold mb-4">Settings</h1>
-            <p className="text-kakera-muted">Configure your preferences here.</p>
-          </div>
-        )}
-      </main>
-    </div>
+    <AppLayout currentPage={currentPage} onNavigate={setCurrentPage}>
+      {currentPage === 'library' && <LibraryPage />}
+      {currentPage === 'calendar' && <CalendarPage />}
+      {currentPage === 'collections' && <CollectionsPage />}
+    </AppLayout>
   )
 }
 
-export default App
+export default function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <AppInner />
+    </QueryClientProvider>
+  )
+}
