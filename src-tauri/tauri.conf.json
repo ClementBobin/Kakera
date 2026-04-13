@@ -8,6 +8,17 @@
     "devUrl": "http://localhost:1420",
     "frontendDist": "../dist"
   },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "Kakera",
+        "width": 800,
+        "height": 600,
+        "resizable": true
+      }
+    ]
+  },
   "bundle": {
     "active": true,
     "targets": "all",
@@ -22,7 +33,7 @@
   "plugins": {
     "shell": { "open": true },
     "fs": {
-      "scope": ["$APPDATA/*", "$DOWNLOAD/*", "$HOME/*"]
+      "requireLiteralLeadingDot": false
     }
   }
 }
