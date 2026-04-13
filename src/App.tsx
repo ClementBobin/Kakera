@@ -3,7 +3,7 @@ import { useLibraryStore } from '@/stores/libraryStore'
 
 function App() {
   const [activeTab, setActiveTab] = useState<'library' | 'calendar' | 'settings'>('library')
-  const { animeList } = useLibraryStore()
+  const { entries } = useLibraryStore()
 
   return (
     <div className="min-h-screen bg-kakera-surface-dark text-white">
@@ -33,12 +33,12 @@ function App() {
         {activeTab === 'library' && (
           <div>
             <h1 className="text-2xl font-semibold mb-4">My Library</h1>
-            {animeList.length === 0 ? (
+            {entries.length === 0 ? (
               <p className="text-kakera-muted">No anime in your library yet. Sync with a tracking service to get started.</p>
             ) : (
               <ul>
-                {animeList.map((anime) => (
-                  <li key={anime.id}>{anime.title}</li>
+                {entries.map((anime) => (
+                  <li key={anime.id}>{anime.title.romaji}</li>
                 ))}
               </ul>
             )}

@@ -1,7 +1,6 @@
-import { create } from 'zustand'
 import type { AppSettings } from '@/types/settings'
 
-const DEFAULT_SETTINGS: AppSettings = {
+export const MOCK_SETTINGS: AppSettings = {
   theme: 'dark',
   themePreset: 'slate',
   displayMode: 'grid_compact',
@@ -26,16 +25,3 @@ const DEFAULT_SETTINGS: AppSettings = {
     myanimelist: { enabled: false, token: null, username: null },
   },
 }
-
-interface SettingsState {
-  settings: AppSettings
-  updateSettings: (partial: Partial<AppSettings>) => void
-  resetSettings: () => void
-}
-
-export const useSettingsStore = create<SettingsState>((set) => ({
-  settings: DEFAULT_SETTINGS,
-  updateSettings: (partial) =>
-    set((state) => ({ settings: { ...state.settings, ...partial } })),
-  resetSettings: () => set({ settings: DEFAULT_SETTINGS }),
-}))

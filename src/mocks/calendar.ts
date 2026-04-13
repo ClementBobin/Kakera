@@ -1,0 +1,148 @@
+import type { AnimeCalendarEntry } from '@/types/anime'
+
+const base = new Date('2026-04-13T00:00:00.000Z')
+
+function daysFromBase(days: number, hour = 16): string {
+  const d = new Date(base)
+  d.setDate(d.getDate() + days)
+  d.setUTCHours(hour, 0, 0, 0)
+  return d.toISOString()
+}
+
+export const MOCK_CALENDAR: AnimeCalendarEntry[] = [
+  {
+    animeId: '3',
+    title: 'Jujutsu Kaisen Season 2',
+    coverImage: 'https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx113415-SZPnhp8hpMCG.jpg',
+    episodeNumber: 15,
+    airingAt: daysFromBase(4, 16),
+    isInLibrary: true,
+    isNewSeason: false,
+  },
+  {
+    animeId: '14',
+    title: 'Vinland Saga Season 2',
+    coverImage: 'https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx136430-yGajcHUz4JYO.jpg',
+    episodeNumber: 13,
+    airingAt: daysFromBase(5, 16),
+    isInLibrary: true,
+    isNewSeason: false,
+  },
+  {
+    animeId: '1',
+    title: 'Attack on Titan Final Season Part 3',
+    coverImage: 'https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx101922-soiiL1zzjwsk.jpg',
+    episodeNumber: 5,
+    airingAt: daysFromBase(7, 16),
+    isInLibrary: true,
+    isNewSeason: false,
+  },
+  {
+    animeId: '5',
+    title: 'One Piece',
+    coverImage: 'https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/nx21-tXMN3os20Let.jpg',
+    episodeNumber: 851,
+    airingAt: daysFromBase(8, 9),
+    isInLibrary: true,
+    isNewSeason: false,
+  },
+  {
+    animeId: '18',
+    title: 'That Time I Got Reincarnated as a Slime Season 3',
+    coverImage: 'https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx127720.jpg',
+    episodeNumber: 6,
+    airingAt: daysFromBase(9, 16),
+    isInLibrary: true,
+    isNewSeason: false,
+  },
+  {
+    animeId: 'cal-1',
+    title: 'Dungeon Meshi',
+    coverImage: 'https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx153518.jpg',
+    episodeNumber: 12,
+    airingAt: daysFromBase(1, 15),
+    isInLibrary: false,
+    isNewSeason: false,
+  },
+  {
+    animeId: 'cal-2',
+    title: 'Frieren: Beyond Journey\'s End',
+    coverImage: 'https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx154587.jpg',
+    episodeNumber: 22,
+    airingAt: daysFromBase(2, 17),
+    isInLibrary: false,
+    isNewSeason: false,
+  },
+  {
+    animeId: 'cal-3',
+    title: 'Kaguya-sama: Love is War -The First Kiss That Never Ends-',
+    coverImage: 'https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx148925.jpg',
+    episodeNumber: 1,
+    airingAt: daysFromBase(3, 18),
+    isInLibrary: false,
+    isNewSeason: true,
+  },
+  {
+    animeId: 'cal-4',
+    title: 'Oshi no Ko Season 2',
+    coverImage: 'https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx166531.jpg',
+    episodeNumber: 1,
+    airingAt: daysFromBase(6, 14),
+    isInLibrary: false,
+    isNewSeason: true,
+  },
+  {
+    animeId: '16',
+    title: 'SPY×FAMILY Season 2',
+    coverImage: 'https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx142838.jpg',
+    episodeNumber: 8,
+    airingAt: daysFromBase(13, 15),
+    isInLibrary: true,
+    isNewSeason: false,
+  },
+  {
+    animeId: '9',
+    title: 'Re:ZERO -Starting Life in Another World- Season 2',
+    coverImage: 'https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx97986-LRSHOTnJfYoC.jpg',
+    episodeNumber: 14,
+    airingAt: daysFromBase(11, 16),
+    isInLibrary: true,
+    isNewSeason: false,
+  },
+  {
+    animeId: 'cal-5',
+    title: 'Solo Leveling Season 2',
+    coverImage: 'https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx170942.jpg',
+    episodeNumber: 1,
+    airingAt: daysFromBase(10, 16),
+    isInLibrary: false,
+    isNewSeason: true,
+  },
+  {
+    animeId: 'cal-6',
+    title: 'Blue Lock Season 2',
+    coverImage: 'https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx171018.jpg',
+    episodeNumber: 3,
+    airingAt: daysFromBase(0, 20),
+    isInLibrary: false,
+    isNewSeason: false,
+  },
+  {
+    animeId: 'cal-7',
+    title: 'Mushoku Tensei: Jobless Reincarnation Season 2',
+    coverImage: 'https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx146065.jpg',
+    episodeNumber: 9,
+    airingAt: daysFromBase(12, 15),
+    isInLibrary: false,
+    isNewSeason: false,
+  },
+  {
+    animeId: 'cal-8',
+    title: 'Bleach: Thousand-Year Blood War - The Conflict',
+    coverImage: 'https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx145898.jpg',
+    episodeNumber: 8,
+    airingAt: daysFromBase(14, 17),
+    isInLibrary: false,
+    isNewSeason: true,
+  },
+]
