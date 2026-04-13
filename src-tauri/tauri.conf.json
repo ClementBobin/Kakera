@@ -22,7 +22,7 @@
   "plugins": {
     "shell": { "open": true },
     "fs": {
-      "scope": ["$APPDATA/*", "$DOWNLOAD/*", "$HOME/*"]
+      "requireLiteralLeadingDot": false
     }
   }
 }
