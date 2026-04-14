@@ -2,56 +2,284 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Slate preset — light */
+/* ─── Default (Slate dark) ─────────────────────────────────────────────────── */
+:root {
+  --kakera-primary-50:  #f8fafc;
+  --kakera-primary-100: #f1f5f9;
+  --kakera-primary-200: #e2e8f0;
+  --kakera-primary-300: #cbd5e1;
+  --kakera-primary-400: #94a3b8;
+  --kakera-primary-500: #64748b;
+  --kakera-primary-600: #475569;
+  --kakera-primary-700: #334155;
+  --kakera-primary-800: #1e293b;
+  --kakera-primary-900: #0f172a;
+  --kakera-primary-950: #020617;
+  --kakera-primary:     #64748b;
+  --kakera-surface:     #1e293b;
+  --kakera-surface-light: #f1f5f9;
+  --kakera-surface-dark:  #020617;
+  --kakera-muted:       #94a3b8;
+  --kakera-muted-light: #cbd5e1;
+  --kakera-muted-dark:  #475569;
+  --kakera-accent:      #7c3aed;
+  --kakera-accent-light:#a78bfa;
+  --kakera-accent-dark: #5b21b6;
+}
+
+/* ─── Slate light ──────────────────────────────────────────────────────────── */
 [data-preset="slate"][data-theme="light"] {
-  --color-bg: #f1f5f9;
-  --color-surface: #ffffff;
-  --color-border: #e2e8f0;
-  --color-text: #0f172a;
-  --color-text-muted: #64748b;
-  --color-accent: #7c3aed;
-  --color-accent-hover: #6d28d9;
+  --kakera-primary-950: #f8fafc;
+  --kakera-primary-900: #f1f5f9;
+  --kakera-primary-800: #e2e8f0;
+  --kakera-primary-700: #cbd5e1;
+  --kakera-primary-600: #94a3b8;
+  --kakera-primary-500: #64748b;
+  --kakera-primary-400: #475569;
+  --kakera-primary-300: #334155;
+  --kakera-primary-200: #1e293b;
+  --kakera-primary-100: #0f172a;
+  --kakera-primary-50:  #020617;
+  --kakera-surface:     #ffffff;
+  --kakera-surface-light: #f1f5f9;
+  --kakera-surface-dark:  #e2e8f0;
+  --kakera-muted:       #64748b;
+  --kakera-muted-light: #94a3b8;
+  --kakera-muted-dark:  #334155;
+  --kakera-accent:      #7c3aed;
+  --kakera-accent-light:#a78bfa;
+  --kakera-accent-dark: #5b21b6;
 }
 
-/* Slate preset — dark */
-[data-preset="slate"][data-theme="dark"],
-[data-preset="slate"]:not([data-theme]) {
-  --color-bg: #0f172a;
-  --color-surface: #1e293b;
-  --color-border: #334155;
-  --color-text: #f8fafc;
-  --color-text-muted: #94a3b8;
-  --color-accent: #7c3aed;
-  --color-accent-hover: #6d28d9;
-}
-
-/* Wallbash preset — light */
-[data-preset="wallbash"][data-theme="light"] {
-  --color-bg: #fef3e2;
-  --color-surface: #ffffff;
-  --color-border: #fed7aa;
-  --color-text: #431407;
-  --color-text-muted: #92400e;
-  --color-accent: #ea580c;
-  --color-accent-hover: #c2410c;
-}
-
-/* Wallbash preset — dark */
+/* ─── Wallbash dark (warm orange) ─────────────────────────────────────────── */
 [data-preset="wallbash"][data-theme="dark"],
 [data-preset="wallbash"]:not([data-theme]) {
-  --color-bg: #1c0a00;
-  --color-surface: #2d1500;
-  --color-border: #92400e;
-  --color-text: #fef3e2;
-  --color-text-muted: #fdba74;
-  --color-accent: #f97316;
-  --color-accent-hover: #ea580c;
+  --kakera-primary-50:  #fef3e2;
+  --kakera-primary-100: #fed7aa;
+  --kakera-primary-200: #fdba74;
+  --kakera-primary-300: #fb923c;
+  --kakera-primary-400: #f97316;
+  --kakera-primary-500: #ea580c;
+  --kakera-primary-600: #c2410c;
+  --kakera-primary-700: #9a3412;
+  --kakera-primary-800: #7c2d12;
+  --kakera-primary-900: #431407;
+  --kakera-primary-950: #1c0a00;
+  --kakera-primary:     #ea580c;
+  --kakera-surface:     #2d1500;
+  --kakera-surface-light: #fef3e2;
+  --kakera-surface-dark:  #1c0a00;
+  --kakera-muted:       #fdba74;
+  --kakera-muted-light: #fed7aa;
+  --kakera-muted-dark:  #92400e;
+  --kakera-accent:      #f97316;
+  --kakera-accent-light:#fb923c;
+  --kakera-accent-dark: #ea580c;
 }
 
-/* Thin scrollbar utility */
+/* ─── Wallbash light ───────────────────────────────────────────────────────── */
+[data-preset="wallbash"][data-theme="light"] {
+  --kakera-primary-950: #fef3e2;
+  --kakera-primary-900: #fed7aa;
+  --kakera-primary-800: #fdba74;
+  --kakera-primary-700: #fb923c;
+  --kakera-primary-600: #f97316;
+  --kakera-primary-500: #ea580c;
+  --kakera-primary-400: #c2410c;
+  --kakera-primary-300: #9a3412;
+  --kakera-primary-200: #7c2d12;
+  --kakera-primary-100: #431407;
+  --kakera-primary-50:  #1c0a00;
+  --kakera-surface:     #ffffff;
+  --kakera-surface-light: #fef3e2;
+  --kakera-surface-dark:  #fed7aa;
+  --kakera-muted:       #92400e;
+  --kakera-muted-light: #c2410c;
+  --kakera-muted-dark:  #431407;
+  --kakera-accent:      #ea580c;
+  --kakera-accent-light:#f97316;
+  --kakera-accent-dark: #c2410c;
+}
+
+/* ─── Cloudflare (electric orange + dark) ─────────────────────────────────── */
+[data-preset="cloudflare"] {
+  --kakera-primary-50:  #fff7ed;
+  --kakera-primary-100: #ffedd5;
+  --kakera-primary-200: #fcd89a;
+  --kakera-primary-300: #fab565;
+  --kakera-primary-400: #f6821f;
+  --kakera-primary-500: #e06923;
+  --kakera-primary-600: #b24c0c;
+  --kakera-primary-700: #7c3109;
+  --kakera-primary-800: #4a1e07;
+  --kakera-primary-900: #1f0d04;
+  --kakera-primary-950: #0c0805;
+  --kakera-primary:     #e06923;
+  --kakera-surface:     #1a1008;
+  --kakera-surface-light: #fff7ed;
+  --kakera-surface-dark:  #0c0805;
+  --kakera-muted:       #f6821f;
+  --kakera-muted-light: #fab565;
+  --kakera-muted-dark:  #b24c0c;
+  --kakera-accent:      #f6821f;
+  --kakera-accent-light:#fab565;
+  --kakera-accent-dark: #e06923;
+}
+
+/* ─── Barbe à papa (cotton candy pink/purple) ─────────────────────────────── */
+[data-preset="barbe-a-papa"] {
+  --kakera-primary-50:  #fde8ff;
+  --kakera-primary-100: #f4c9f7;
+  --kakera-primary-200: #e99bee;
+  --kakera-primary-300: #d664e0;
+  --kakera-primary-400: #b040c0;
+  --kakera-primary-500: #8c2ea0;
+  --kakera-primary-600: #6b1f80;
+  --kakera-primary-700: #4a1b6e;
+  --kakera-primary-800: #2d1147;
+  --kakera-primary-900: #1a0a23;
+  --kakera-primary-950: #0d0510;
+  --kakera-primary:     #8c2ea0;
+  --kakera-surface:     #1a0a23;
+  --kakera-surface-light: #fde8ff;
+  --kakera-surface-dark:  #0d0510;
+  --kakera-muted:       #d664e0;
+  --kakera-muted-light: #e99bee;
+  --kakera-muted-dark:  #6b1f80;
+  --kakera-accent:      #e040fb;
+  --kakera-accent-light:#ea80fc;
+  --kakera-accent-dark: #b040c0;
+}
+
+/* ─── Doom (blood red) ────────────────────────────────────────────────────── */
+[data-preset="doom"] {
+  --kakera-primary-50:  #fee2e2;
+  --kakera-primary-100: #fca5a5;
+  --kakera-primary-200: #f87171;
+  --kakera-primary-300: #ef4444;
+  --kakera-primary-400: #dc2626;
+  --kakera-primary-500: #b91c1c;
+  --kakera-primary-600: #991b1b;
+  --kakera-primary-700: #7f1d1d;
+  --kakera-primary-800: #450a0a;
+  --kakera-primary-900: #200000;
+  --kakera-primary-950: #0e0000;
+  --kakera-primary:     #b91c1c;
+  --kakera-surface:     #200000;
+  --kakera-surface-light: #fee2e2;
+  --kakera-surface-dark:  #0e0000;
+  --kakera-muted:       #f87171;
+  --kakera-muted-light: #fca5a5;
+  --kakera-muted-dark:  #991b1b;
+  --kakera-accent:      #ef4444;
+  --kakera-accent-light:#f87171;
+  --kakera-accent-dark: #dc2626;
+}
+
+/* ─── Pomme verte (green apple) ───────────────────────────────────────────── */
+[data-preset="pomme-verte"] {
+  --kakera-primary-50:  #dcfce7;
+  --kakera-primary-100: #bbf7d0;
+  --kakera-primary-200: #86efac;
+  --kakera-primary-300: #4ade80;
+  --kakera-primary-400: #22c55e;
+  --kakera-primary-500: #16a34a;
+  --kakera-primary-600: #15803d;
+  --kakera-primary-700: #166534;
+  --kakera-primary-800: #14532d;
+  --kakera-primary-900: #071a00;
+  --kakera-primary-950: #030d00;
+  --kakera-primary:     #16a34a;
+  --kakera-surface:     #071a00;
+  --kakera-surface-light: #dcfce7;
+  --kakera-surface-dark:  #030d00;
+  --kakera-muted:       #4ade80;
+  --kakera-muted-light: #86efac;
+  --kakera-muted-dark:  #15803d;
+  --kakera-accent:      #22c55e;
+  --kakera-accent-light:#4ade80;
+  --kakera-accent-dark: #16a34a;
+}
+
+/* ─── Lavande (lavender) ──────────────────────────────────────────────────── */
+[data-preset="lavande"] {
+  --kakera-primary-50:  #ede9fe;
+  --kakera-primary-100: #ddd6fe;
+  --kakera-primary-200: #c4b5fd;
+  --kakera-primary-300: #a78bfa;
+  --kakera-primary-400: #818cf8;
+  --kakera-primary-500: #6d5dae;
+  --kakera-primary-600: #4c3888;
+  --kakera-primary-700: #2d1f5e;
+  --kakera-primary-800: #1a1338;
+  --kakera-primary-900: #0e0a1e;
+  --kakera-primary-950: #07050f;
+  --kakera-primary:     #6d5dae;
+  --kakera-surface:     #0e0a1e;
+  --kakera-surface-light: #ede9fe;
+  --kakera-surface-dark:  #07050f;
+  --kakera-muted:       #a78bfa;
+  --kakera-muted-light: #c4b5fd;
+  --kakera-muted-dark:  #4c3888;
+  --kakera-accent:      #818cf8;
+  --kakera-accent-light:#a78bfa;
+  --kakera-accent-dark: #6d5dae;
+}
+
+/* ─── Matrix (terminal green) ─────────────────────────────────────────────── */
+[data-preset="matrix"] {
+  --kakera-primary-50:  #ccffcc;
+  --kakera-primary-100: #00ff41;
+  --kakera-primary-200: #00cc00;
+  --kakera-primary-300: #00aa00;
+  --kakera-primary-400: #008800;
+  --kakera-primary-500: #006600;
+  --kakera-primary-600: #004400;
+  --kakera-primary-700: #003300;
+  --kakera-primary-800: #002200;
+  --kakera-primary-900: #001100;
+  --kakera-primary-950: #000800;
+  --kakera-primary:     #006600;
+  --kakera-surface:     #001100;
+  --kakera-surface-light: #ccffcc;
+  --kakera-surface-dark:  #000800;
+  --kakera-muted:       #00cc00;
+  --kakera-muted-light: #00ff41;
+  --kakera-muted-dark:  #004400;
+  --kakera-accent:      #00ff41;
+  --kakera-accent-light:#ccffcc;
+  --kakera-accent-dark: #00cc00;
+}
+
+/* ─── Crépuscule de minuit (midnight twilight) ────────────────────────────── */
+[data-preset="crepuscule-de-minuit"] {
+  --kakera-primary-50:  #e0e7ff;
+  --kakera-primary-100: #bfcafe;
+  --kakera-primary-200: #93a3f7;
+  --kakera-primary-300: #6272e0;
+  --kakera-primary-400: #4254b5;
+  --kakera-primary-500: #2d3d7a;
+  --kakera-primary-600: #1a2550;
+  --kakera-primary-700: #0f1630;
+  --kakera-primary-800: #080c1a;
+  --kakera-primary-900: #04050e;
+  --kakera-primary-950: #02020a;
+  --kakera-primary:     #2d3d7a;
+  --kakera-surface:     #080c1a;
+  --kakera-surface-light: #e0e7ff;
+  --kakera-surface-dark:  #02020a;
+  --kakera-muted:       #6272e0;
+  --kakera-muted-light: #93a3f7;
+  --kakera-muted-dark:  #2d3d7a;
+  --kakera-accent:      #6272e0;
+  --kakera-accent-light:#93a3f7;
+  --kakera-accent-dark: #4254b5;
+}
+
+/* ─── Thin scrollbar utility ──────────────────────────────────────────────── */
 .scrollbar-thin {
   scrollbar-width: thin;
-  scrollbar-color: #475569 transparent;
+  scrollbar-color: var(--kakera-primary-700) transparent;
 }
 .scrollbar-thin::-webkit-scrollbar {
   width: 6px;
@@ -61,6 +289,6 @@
   background: transparent;
 }
 .scrollbar-thin::-webkit-scrollbar-thumb {
-  background-color: #475569;
+  background-color: var(--kakera-primary-700);
   border-radius: 3px;
 }

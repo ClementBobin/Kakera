@@ -4,6 +4,7 @@ export const MOCK_ANIME: AnimeEntry[] = [
   {
     id: '1',
     serviceId: { anilist: '101922', myanimelist: '40028' },
+    description: "The war for humanity's survival reaches its final chapter. Eren Yeager leads the Rumbling toward global catastrophe as his former allies race to stop him.",
     title: { romaji: 'Shingeki no Kyojin: The Final Season Part 3', english: 'Attack on Titan Final Season Part 3', native: '進撃の巨人 The Final Season完結編' },
     coverImage: 'https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx101922-soiiL1zzjwsk.jpg',
     bannerImage: 'https://s4.anilist.co/file/anilistcdn/media/anime/banner/101922-YfZhKBUDDS56.jpg',
@@ -34,6 +35,7 @@ export const MOCK_ANIME: AnimeEntry[] = [
         coverImage: 'https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx110277-KdBs9sGlFnpF.jpg',
         relationType: 'PREQUEL',
         releaseYear: 2022,
+        endYear: null,
         format: 'TV',
       },
     ],
@@ -41,6 +43,7 @@ export const MOCK_ANIME: AnimeEntry[] = [
   {
     id: '2',
     serviceId: { anilist: '108849', myanimelist: '38000' },
+    description: null,
     title: { romaji: 'Kimetsu no Yaiba', english: 'Demon Slayer: Kimetsu no Yaiba', native: '鬼滅の刃' },
     coverImage: 'https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx108849-CDlkPbx4BIWT.jpg',
     bannerImage: 'https://s4.anilist.co/file/anilistcdn/media/anime/banner/108849-jCQFyPi9BLrs.jpg',
@@ -69,6 +72,7 @@ export const MOCK_ANIME: AnimeEntry[] = [
   {
     id: '3',
     serviceId: { anilist: '113415', myanimelist: '40748' },
+    description: null,
     title: { romaji: 'Jujutsu Kaisen 2nd Season', english: 'Jujutsu Kaisen Season 2', native: '呪術廻戦 懐玉・玉折' },
     coverImage: 'https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx113415-SZPnhp8hpMCG.jpg',
     bannerImage: 'https://s4.anilist.co/file/anilistcdn/media/anime/banner/113415-x4YkIbzNfM4F.jpg',
@@ -97,6 +101,7 @@ export const MOCK_ANIME: AnimeEntry[] = [
   {
     id: '4',
     serviceId: { anilist: '5114', myanimelist: '5114' },
+    description: null,
     title: { romaji: 'Fullmetal Alchemist: Brotherhood', english: 'Fullmetal Alchemist: Brotherhood', native: '鋼の錬金術師 BROTHERHOOD' },
     coverImage: 'https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx5114-q8HQFSmCZLmx.jpg',
     bannerImage: 'https://s4.anilist.co/file/anilistcdn/media/anime/banner/5114-KkvqfDPDhMBo.jpg',
@@ -125,6 +130,7 @@ export const MOCK_ANIME: AnimeEntry[] = [
   {
     id: '5',
     serviceId: { anilist: '21', myanimelist: '21' },
+    description: null,
     title: { romaji: 'One Piece', english: 'One Piece', native: 'ONE PIECE' },
     coverImage: 'https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/nx21-tXMN3os20Let.jpg',
     bannerImage: 'https://s4.anilist.co/file/anilistcdn/media/anime/banner/21-YfOiSRIG79vq.jpg',
@@ -155,6 +161,7 @@ export const MOCK_ANIME: AnimeEntry[] = [
         coverImage: 'https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx130003.jpg',
         relationType: 'SIDE_STORY',
         releaseYear: 2022,
+        endYear: null,
         format: 'MOVIE',
       },
     ],
@@ -162,6 +169,7 @@ export const MOCK_ANIME: AnimeEntry[] = [
   {
     id: '6',
     serviceId: { anilist: '20', myanimelist: '20' },
+    description: null,
     title: { romaji: 'Naruto', english: 'Naruto', native: 'ナルト' },
     coverImage: 'https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx20-gt8HHEdAiGdb.jpg',
     bannerImage: null,
@@ -190,6 +198,7 @@ export const MOCK_ANIME: AnimeEntry[] = [
   {
     id: '7',
     serviceId: { anilist: '131681', myanimelist: '44511' },
+    description: null,
     title: { romaji: 'Boku no Hero Academia 6th Season', english: 'My Hero Academia Season 6', native: '僕のヒーローアカデミア 第6期' },
     coverImage: 'https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx131681-ZsM17F3YFHFN.jpg',
     bannerImage: null,
@@ -218,6 +227,7 @@ export const MOCK_ANIME: AnimeEntry[] = [
   {
     id: '8',
     serviceId: { anilist: '11757', myanimelist: '11757' },
+    description: null,
     title: { romaji: 'Sword Art Online', english: 'Sword Art Online', native: 'ソードアート・オンライン' },
     coverImage: 'https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx11757-oMPNEXUkGPBO.jpg',
     bannerImage: null,
@@ -246,6 +256,7 @@ export const MOCK_ANIME: AnimeEntry[] = [
   {
     id: '9',
     serviceId: { anilist: '97986', myanimelist: '31240' },
+    description: null,
     title: { romaji: 'Re:Zero kara Hajimeru Isekai Seikatsu 2nd Season', english: 'Re:ZERO -Starting Life in Another World- Season 2', native: 'Re:ゼロから始める異世界生活 2nd season' },
     coverImage: 'https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx97986-LRSHOTnJfYoC.jpg',
     bannerImage: null,
@@ -274,6 +285,7 @@ export const MOCK_ANIME: AnimeEntry[] = [
   {
     id: '10',
     serviceId: { anilist: '9253', myanimelist: '9253' },
+    description: null,
     title: { romaji: "Steins;Gate", english: "Steins;Gate", native: 'シュタインズ・ゲート' },
     coverImage: 'https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx9253-imoLXkJa97Sk.jpg',
     bannerImage: 'https://s4.anilist.co/file/anilistcdn/media/anime/banner/9253-mCsFjSBZfJfV.jpg',
@@ -304,6 +316,7 @@ export const MOCK_ANIME: AnimeEntry[] = [
         coverImage: 'https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx100702.jpg',
         relationType: 'SEQUEL',
         releaseYear: 2018,
+        endYear: null,
         format: 'TV',
       },
     ],
@@ -311,6 +324,7 @@ export const MOCK_ANIME: AnimeEntry[] = [
   {
     id: '11',
     serviceId: { anilist: '1535', myanimelist: '1535' },
+    description: null,
     title: { romaji: 'Death Note', english: 'Death Note', native: 'デスノート' },
     coverImage: 'https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx1535-lawCwhHMfrs4.jpg',
     bannerImage: null,
@@ -339,6 +353,7 @@ export const MOCK_ANIME: AnimeEntry[] = [
   {
     id: '12',
     serviceId: { anilist: '11061', myanimelist: '11061' },
+    description: null,
     title: { romaji: 'Hunter x Hunter (2011)', english: 'Hunter x Hunter', native: 'HUNTER×HUNTER（ハンターハンター）' },
     coverImage: 'https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx11061-nP4FAH0KqLzV.jpg',
     bannerImage: null,
@@ -367,6 +382,7 @@ export const MOCK_ANIME: AnimeEntry[] = [
   {
     id: '13',
     serviceId: { anilist: '205', myanimelist: '1' },
+    description: null,
     title: { romaji: 'Cowboy Bebop', english: 'Cowboy Bebop', native: 'カウボーイビバップ' },
     coverImage: 'https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx205-GpvBStFNNDrJ.jpg',
     bannerImage: 'https://s4.anilist.co/file/anilistcdn/media/anime/banner/205-8wPGABJWONFY.jpg',
@@ -397,6 +413,7 @@ export const MOCK_ANIME: AnimeEntry[] = [
         coverImage: 'https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx206.jpg',
         relationType: 'SEQUEL',
         releaseYear: 2001,
+        endYear: null,
         format: 'MOVIE',
       },
     ],
@@ -404,6 +421,7 @@ export const MOCK_ANIME: AnimeEntry[] = [
   {
     id: '14',
     serviceId: { anilist: '136430', myanimelist: '49387' },
+    description: null,
     title: { romaji: 'Vinland Saga Season 2', english: 'Vinland Saga Season 2', native: 'ヴィンランド・サガ SEASON2' },
     coverImage: 'https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx136430-yGajcHUz4JYO.jpg',
     bannerImage: null,
@@ -432,6 +450,7 @@ export const MOCK_ANIME: AnimeEntry[] = [
   {
     id: '15',
     serviceId: { anilist: '127230', myanimelist: '50265' },
+    description: null,
     title: { romaji: 'Chainsaw Man', english: 'Chainsaw Man', native: 'チェンソーマン' },
     coverImage: 'https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx127230-WIABpDyPlTKw.jpg',
     bannerImage: 'https://s4.anilist.co/file/anilistcdn/media/anime/banner/127230-Dfm7naCzU2l6.jpg',
@@ -460,6 +479,7 @@ export const MOCK_ANIME: AnimeEntry[] = [
   {
     id: '16',
     serviceId: { anilist: '142838', myanimelist: '50265' },
+    description: null,
     title: { romaji: 'SPY×FAMILY Season 2', english: 'SPY×FAMILY Season 2', native: 'SPY×FAMILY Season 2' },
     coverImage: 'https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx142838.jpg',
     bannerImage: null,
@@ -488,6 +508,7 @@ export const MOCK_ANIME: AnimeEntry[] = [
   {
     id: '17',
     serviceId: { anilist: '133844', myanimelist: '48895' },
+    description: null,
     title: { romaji: 'Overlord IV', english: 'Overlord IV', native: 'オーバーロードⅣ' },
     coverImage: 'https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx133844.jpg',
     bannerImage: null,
@@ -516,6 +537,7 @@ export const MOCK_ANIME: AnimeEntry[] = [
   {
     id: '18',
     serviceId: { anilist: '127720', myanimelist: '46569' },
+    description: null,
     title: { romaji: 'Tensei shitara Slime Datta Ken 3rd Season', english: 'That Time I Got Reincarnated as a Slime Season 3', native: '転生したらスライムだった件 第3期' },
     coverImage: 'https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx127720.jpg',
     bannerImage: null,
@@ -544,6 +566,7 @@ export const MOCK_ANIME: AnimeEntry[] = [
   {
     id: '19',
     serviceId: { anilist: '113430', myanimelist: '38859' },
+    description: null,
     title: { romaji: 'Black Clover', english: 'Black Clover', native: 'ブラッククローバー' },
     coverImage: 'https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx100389-WMiOcYrxjlhS.jpg',
     bannerImage: null,
@@ -572,6 +595,7 @@ export const MOCK_ANIME: AnimeEntry[] = [
   {
     id: '20',
     serviceId: { anilist: '130590', myanimelist: '46102' },
+    description: null,
     title: { romaji: 'Tokyo Revengers: Tenjiku-hen', english: 'Tokyo Revengers: Tenjiku Arc', native: '東京リベンジャーズ 天竺編' },
     coverImage: 'https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx130590.jpg',
     bannerImage: null,

@@ -5,13 +5,17 @@ import { useSyncLibrary } from '@/hooks/useLibrary'
 import { Button } from '@/components/ui/Button'
 import { Tooltip } from '@/components/ui/Tooltip'
 import { formatRelativeDate } from '@/utils/format'
+import { RefreshCw, Shuffle, LayoutGrid, Grid2x2, Square, List, type LucideProps } from 'lucide-react'
+import type { ForwardRefExoticComponent, RefAttributes } from 'react'
 import type { DisplayMode } from '@/types/settings'
 
-const DISPLAY_MODES: { value: DisplayMode; label: string; icon: string }[] = [
-  { value: 'grid_compact', label: 'Grid (Compact)', icon: '⊞' },
-  { value: 'grid_spacious', label: 'Grid (Spacious)', icon: '⊡' },
-  { value: 'grid_cover_only', label: 'Grid (Cover Only)', icon: '⊟' },
-  { value: 'list', label: 'List', icon: '☰' },
+type LucideIcon = ForwardRefExoticComponent<Omit<LucideProps, 'ref'> & RefAttributes<SVGSVGElement>>
+
+const DISPLAY_MODES: { value: DisplayMode; label: string; Icon: LucideIcon }[] = [
+  { value: 'grid_compact', label: 'Grid (Compact)', Icon: LayoutGrid },
+  { value: 'grid_spacious', label: 'Grid (Spacious)', Icon: Grid2x2 },
+  { value: 'grid_cover_only', label: 'Grid (Cover Only)', Icon: Square },
+  { value: 'list', label: 'List', Icon: List },
 ]
 
 export function LibraryToolbar() {
@@ -49,33 +53,37 @@ export function LibraryToolbar() {
           onClick={handleSync}
           aria-label="Sync library"
         >
-          🔄 Sync
+          <RefreshCw size={13} className={isSyncing ? 'animate-spin' : ''} />
+          Sync
         </Button>
       </Tooltip>
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={handleRandom}
-        disabled={filteredEntries.length === 0}
-        aria-label="Open random anime"
-      >
-        🎲 Random
-      </Button>
+      <Tooltip content="Open a random anime from the current view">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleRandom}
+          disabled={filteredEntries.length === 0}
+          aria-label="Open random anime"
+        >
+          <Shuffle size={13} />
+          Random
+        </Button>
+      </Tooltip>
       <div className="flex gap-1 ml-auto">
-        {DISPLAY_MODES.map((mode) => (
-          <Tooltip key={mode.value} content={mode.label}>
+        {DISPLAY_MODES.map(({ value, label, Icon }) => (
+          <Tooltip key={value} content={label}>
             <button
-              onClick={() => updateSettings({ displayMode: mode.value })}
+              onClick={() => updateSettings({ displayMode: value })}
               className={`w-8 h-8 flex items-center justify-center rounded-lg text-sm transition-colors
                 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kakera-accent
-                ${settings.displayMode === mode.value
+                ${settings.displayMode === value
                   ? 'bg-kakera-accent text-white'
                   : 'text-kakera-primary-400 hover:bg-kakera-primary-700 hover:text-white'
                 }`}
-              aria-label={mode.label}
-              aria-pressed={settings.displayMode === mode.value}
+              aria-label={label}
+              aria-pressed={settings.displayMode === value}
             >
-              {mode.icon}
+              <Icon size={14} strokeWidth={1.75} />
             </button>
           </Tooltip>
         ))}

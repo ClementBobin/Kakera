@@ -2,7 +2,31 @@ import { useSettingsStore } from '@/stores/settingsStore'
 import { useSaveSettings } from '@/hooks/useSettings'
 import { applyTheme } from '@/lib/theme'
 import { Button, Input, Select, Checkbox, Slider } from '@/components/ui'
+import { Tooltip } from '@/components/ui/Tooltip'
 import type { Theme, ThemePreset, DisplayMode, VideoQuality } from '@/types/settings'
+
+const THEME_TOOLTIPS: Record<Theme, string> = {
+  light: 'Always use light mode',
+  dark: 'Always use dark mode',
+  auto: 'Follow the OS colour-scheme preference',
+}
+
+const THEME_PRESETS: { value: ThemePreset; label: string; color: string }[] = [
+  { value: 'slate',               label: 'Slate',              color: '#7c3aed' },
+  { value: 'wallbash',            label: 'Wallbash',           color: '#f97316' },
+  { value: 'cloudflare',          label: 'Cloudflare',         color: '#f6821f' },
+  { value: 'barbe-a-papa',        label: 'Barbe à papa',       color: '#e040fb' },
+  { value: 'doom',                label: 'Doom',               color: '#ef4444' },
+  { value: 'pomme-verte',         label: 'Pomme verte',        color: '#22c55e' },
+  { value: 'lavande',             label: 'Lavande',            color: '#818cf8' },
+  { value: 'matrix',              label: 'Matrix',             color: '#00ff41' },
+  { value: 'crepuscule-de-minuit',label: 'Crépuscule de minuit', color: '#6272e0' },
+]
+
+// OAuth client IDs must be set via environment variables or app configuration before shipping.
+// Replace the placeholder values below with your registered application's client IDs.
+const ANILIST_OAUTH_URL = 'https://anilist.co/api/v2/oauth/authorize?client_id=YOUR_ANILIST_CLIENT_ID&response_type=token'
+const MAL_OAUTH_URL = 'https://myanimelist.net/v1/oauth2/authorize?response_type=code&client_id=YOUR_MAL_CLIENT_ID'
 
 export function SettingsPanel() {
   const settings = useSettingsStore((s) => s.settings)
@@ -40,6 +64,12 @@ export function SettingsPanel() {
     { value: 'best', label: 'Best available' },
   ]
 
+  const OVERLAY_TOOLTIPS: Record<string, string> = {
+    showDownloadedCount: 'Show a "DL" badge on downloaded anime',
+    showUnwatchedCount: 'Show how many unwatched episodes are available',
+    showResumeButton: 'Show the "Resume" button in the hover overlay',
+  }
+
   return (
     <div className="flex flex-col gap-8 max-w-2xl">
       {/* Appearance */}
@@ -50,39 +80,45 @@ export function SettingsPanel() {
             <p className="text-sm font-medium text-kakera-primary-300 mb-2">Theme</p>
             <div className="flex gap-2" role="group" aria-label="Theme selection">
               {(['light', 'dark', 'auto'] as Theme[]).map((t) => (
-                <button
-                  key={t}
-                  onClick={() => handleThemeChange(t)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium capitalize border transition-colors
-                    focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kakera-accent
-                    ${settings.theme === t
-                      ? 'bg-kakera-accent text-white border-kakera-accent'
-                      : 'bg-kakera-primary-800 text-kakera-primary-300 border-kakera-primary-600 hover:border-kakera-accent'
-                    }`}
-                  aria-pressed={settings.theme === t}
-                >
-                  {t}
-                </button>
+                <Tooltip key={t} content={THEME_TOOLTIPS[t]}>
+                  <button
+                    onClick={() => handleThemeChange(t)}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium capitalize border transition-colors
+                      focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kakera-accent
+                      ${settings.theme === t
+                        ? 'bg-kakera-accent text-white border-kakera-accent'
+                        : 'bg-kakera-primary-800 text-kakera-primary-300 border-kakera-primary-600 hover:border-kakera-accent'
+                      }`}
+                    aria-pressed={settings.theme === t}
+                  >
+                    {t}
+                  </button>
+                </Tooltip>
               ))}
             </div>
           </div>
           <div>
-            <p className="text-sm font-medium text-kakera-primary-300 mb-2">Theme Preset</p>
-            <div className="flex gap-3" role="group" aria-label="Theme preset selection">
-              {(['slate', 'wallbash'] as ThemePreset[]).map((p) => (
-                <button
-                  key={p}
-                  onClick={() => handlePresetChange(p)}
-                  className={`px-4 py-3 rounded-lg text-sm font-medium capitalize border transition-colors
-                    focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kakera-accent
-                    ${settings.themePreset === p
-                      ? 'bg-kakera-accent text-white border-kakera-accent'
-                      : 'bg-kakera-primary-800 text-kakera-primary-300 border-kakera-primary-600 hover:border-kakera-accent'
-                    }`}
-                  aria-pressed={settings.themePreset === p}
-                >
-                  {p === 'slate' ? '🪨 Slate' : '🔥 Wallbash'}
-                </button>
+            <p className="text-sm font-medium text-kakera-primary-300 mb-2">Color Scheme</p>
+            <div className="flex flex-wrap gap-2" role="group" aria-label="Color scheme selection">
+              {THEME_PRESETS.map((p) => (
+                <Tooltip key={p.value} content={`Apply the ${p.label} colour scheme`}>
+                  <button
+                    onClick={() => handlePresetChange(p.value)}
+                    className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium border transition-colors whitespace-nowrap
+                      focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kakera-accent
+                      ${settings.themePreset === p.value
+                        ? 'bg-kakera-accent text-white border-kakera-accent'
+                        : 'bg-kakera-primary-800 text-kakera-primary-300 border-kakera-primary-600 hover:border-kakera-accent'
+                      }`}
+                    aria-pressed={settings.themePreset === p.value}
+                  >
+                    <span
+                      className="w-3 h-3 rounded-full shrink-0"
+                      style={{ backgroundColor: p.color }}
+                    />
+                    {p.label}
+                  </button>
+                </Tooltip>
               ))}
             </div>
           </div>
@@ -124,14 +160,15 @@ export function SettingsPanel() {
         <h2 className="text-base font-semibold text-white mb-4">Overlays</h2>
         <div className="flex flex-col gap-2">
           {(Object.keys(settings.overlay) as (keyof typeof settings.overlay)[]).map((key) => (
-            <Checkbox
-              key={key}
-              label={key.replace(/([A-Z])/g, ' $1').replace(/^show /, 'Show ').trim()}
-              checked={settings.overlay[key]}
-              onChange={(e) =>
-                handleUpdate('overlay', { ...settings.overlay, [key]: e.target.checked })
-              }
-            />
+            <Tooltip key={key} content={OVERLAY_TOOLTIPS[key] ?? key} side="right">
+              <Checkbox
+                label={key.replace(/([A-Z])/g, ' $1').replace(/^show /, 'Show ').trim()}
+                checked={settings.overlay[key]}
+                onChange={(e) =>
+                  handleUpdate('overlay', { ...settings.overlay, [key]: e.target.checked })
+                }
+              />
+            </Tooltip>
           ))}
         </div>
       </section>
@@ -140,20 +177,15 @@ export function SettingsPanel() {
       <section>
         <h2 className="text-base font-semibold text-white mb-4">Tabs</h2>
         <div className="flex flex-col gap-2">
-          <Checkbox
-            label="Show category tabs"
-            checked={settings.tabs.showCategoryTabs}
-            onChange={(e) =>
-              handleUpdate('tabs', { ...settings.tabs, showCategoryTabs: e.target.checked })
-            }
-          />
-          <Checkbox
-            label="Show entry count"
-            checked={settings.tabs.showEntryCount}
-            onChange={(e) =>
-              handleUpdate('tabs', { ...settings.tabs, showEntryCount: e.target.checked })
-            }
-          />
+          <Tooltip content="Show the filter tabs (Watching, Completed, Downloaded…) in the library" side="right">
+            <Checkbox
+              label="Show category tabs"
+              checked={settings.tabs.showCategoryTabs}
+              onChange={(e) =>
+                handleUpdate('tabs', { ...settings.tabs, showCategoryTabs: e.target.checked })
+              }
+            />
+          </Tooltip>
         </div>
       </section>
 
@@ -171,6 +203,11 @@ export function SettingsPanel() {
             label="Always use preferred quality"
             checked={settings.aniCliAlwaysUsePreferredQuality}
             onChange={(e) => handleUpdate('aniCliAlwaysUsePreferredQuality', e.target.checked)}
+          />
+          <Checkbox
+            label="Use dubbed audio (--dub)"
+            checked={settings.aniCliDub}
+            onChange={(e) => handleUpdate('aniCliDub', e.target.checked)}
           />
         </div>
       </section>
@@ -190,65 +227,181 @@ export function SettingsPanel() {
       <section>
         <h2 className="text-base font-semibold text-white mb-4">Services</h2>
         <div className="flex flex-col gap-6">
-          {(['anilist', 'myanimelist'] as const).map((service) => (
-            <div key={service} className="p-4 rounded-xl bg-kakera-primary-800 border border-kakera-primary-700">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-semibold text-white capitalize">
-                  {service === 'myanimelist' ? 'MyAnimeList' : 'AniList'}
-                </h3>
-                <div className={`px-2 py-0.5 rounded text-xs font-medium ${settings.services[service].enabled ? 'bg-green-500/20 text-green-300' : 'bg-kakera-primary-700 text-kakera-muted'}`}>
-                  {settings.services[service].enabled ? 'Connected' : 'Disconnected'}
-                </div>
+          {/* AniList */}
+          <div className="p-4 rounded-xl bg-kakera-primary-800 border border-kakera-primary-700">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <h3 className="text-sm font-semibold text-white">AniList</h3>
               </div>
-              {settings.services[service].username && (
-                <p className="text-sm text-kakera-primary-300 mb-3">
-                  Signed in as {settings.services[service].username}
-                </p>
-              )}
-              <Input
-                label="API Token"
-                type="password"
-                value={settings.services[service].token ?? ''}
-                placeholder="Paste your token here"
-                onChange={(e) =>
-                  handleUpdate('services', {
-                    ...settings.services,
-                    [service]: { ...settings.services[service], token: e.target.value || null },
-                  })
-                }
-              />
-              <div className="flex gap-2 mt-3">
+              <div className={`px-2 py-0.5 rounded text-xs font-medium ${settings.services.anilist.enabled ? 'bg-green-500/20 text-green-300' : 'bg-kakera-primary-700 text-kakera-muted'}`}>
+                {settings.services.anilist.enabled ? 'Connected' : 'Disconnected'}
+              </div>
+            </div>
+            {settings.services.anilist.username && (
+              <p className="text-sm text-kakera-primary-300 mb-3">
+                Signed in as <span className="text-white font-medium">{settings.services.anilist.username}</span>
+              </p>
+            )}
+            <p className="text-xs text-kakera-muted mb-3">
+              Connect via OAuth — no token needed. You&apos;ll be redirected to AniList to authorize.
+            </p>
+            <div className="flex gap-2 flex-wrap">
+              {!settings.services.anilist.enabled ? (
                 <Button
                   variant="primary"
                   size="sm"
-                  onClick={() =>
-                    handleUpdate('services', {
-                      ...settings.services,
-                      [service]: { ...settings.services[service], enabled: true },
-                    })
-                  }
-                  aria-label={`Connect ${service}`}
+                  onClick={() => window.open(ANILIST_OAUTH_URL, '_blank')}
+                  aria-label="Connect AniList via OAuth"
                 >
-                  Connect
+                  Connect with AniList
                 </Button>
-                {settings.services[service].enabled && (
+              ) : (
+                <>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => window.open(ANILIST_OAUTH_URL, '_blank')}
+                    aria-label="Re-authorize AniList"
+                  >
+                    Re-authorize
+                  </Button>
                   <Button
                     variant="danger"
                     size="sm"
                     onClick={() =>
                       handleUpdate('services', {
                         ...settings.services,
-                        [service]: { enabled: false, token: null, username: null },
+                        anilist: { enabled: false, token: null, username: null },
                       })
                     }
-                    aria-label={`Disconnect ${service}`}
+                    aria-label="Disconnect AniList"
                   >
                     Disconnect
                   </Button>
-                )}
+                </>
+              )}
+            </div>
+            {/* Manual token fallback */}
+            <details className="mt-3">
+              <summary className="text-xs text-kakera-muted cursor-pointer hover:text-white transition-colors">
+                Use API token instead
+              </summary>
+              <div className="mt-2">
+                <Input
+                  label="API Token"
+                  type="password"
+                  value={settings.services.anilist.token ?? ''}
+                  placeholder="Paste your token here"
+                  onChange={(e) =>
+                    handleUpdate('services', {
+                      ...settings.services,
+                      anilist: { ...settings.services.anilist, token: e.target.value || null },
+                    })
+                  }
+                />
+                <Button
+                  variant="primary"
+                  size="sm"
+                  className="mt-2"
+                  onClick={() =>
+                    handleUpdate('services', {
+                      ...settings.services,
+                      anilist: { ...settings.services.anilist, enabled: true },
+                    })
+                  }
+                >
+                  Connect
+                </Button>
+              </div>
+            </details>
+          </div>
+
+          {/* MyAnimeList */}
+          <div className="p-4 rounded-xl bg-kakera-primary-800 border border-kakera-primary-700">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-semibold text-white">MyAnimeList</h3>
+              <div className={`px-2 py-0.5 rounded text-xs font-medium ${settings.services.myanimelist.enabled ? 'bg-green-500/20 text-green-300' : 'bg-kakera-primary-700 text-kakera-muted'}`}>
+                {settings.services.myanimelist.enabled ? 'Connected' : 'Disconnected'}
               </div>
             </div>
-          ))}
+            {settings.services.myanimelist.username && (
+              <p className="text-sm text-kakera-primary-300 mb-3">
+                Signed in as <span className="text-white font-medium">{settings.services.myanimelist.username}</span>
+              </p>
+            )}
+            <p className="text-xs text-kakera-muted mb-3">
+              Connect via OAuth — no token needed. You&apos;ll be redirected to MyAnimeList to authorize.
+            </p>
+            <div className="flex gap-2 flex-wrap">
+              {!settings.services.myanimelist.enabled ? (
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onClick={() => window.open(MAL_OAUTH_URL, '_blank')}
+                  aria-label="Connect MyAnimeList via OAuth"
+                >
+                  Connect with MyAnimeList
+                </Button>
+              ) : (
+                <>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => window.open(MAL_OAUTH_URL, '_blank')}
+                    aria-label="Re-authorize MyAnimeList"
+                  >
+                    Re-authorize
+                  </Button>
+                  <Button
+                    variant="danger"
+                    size="sm"
+                    onClick={() =>
+                      handleUpdate('services', {
+                        ...settings.services,
+                        myanimelist: { enabled: false, token: null, username: null },
+                      })
+                    }
+                    aria-label="Disconnect MyAnimeList"
+                  >
+                    Disconnect
+                  </Button>
+                </>
+              )}
+            </div>
+            {/* Manual token fallback */}
+            <details className="mt-3">
+              <summary className="text-xs text-kakera-muted cursor-pointer hover:text-white transition-colors">
+                Use API token instead
+              </summary>
+              <div className="mt-2">
+                <Input
+                  label="API Token"
+                  type="password"
+                  value={settings.services.myanimelist.token ?? ''}
+                  placeholder="Paste your token here"
+                  onChange={(e) =>
+                    handleUpdate('services', {
+                      ...settings.services,
+                      myanimelist: { ...settings.services.myanimelist, token: e.target.value || null },
+                    })
+                  }
+                />
+                <Button
+                  variant="primary"
+                  size="sm"
+                  className="mt-2"
+                  onClick={() =>
+                    handleUpdate('services', {
+                      ...settings.services,
+                      myanimelist: { ...settings.services.myanimelist, enabled: true },
+                    })
+                  }
+                >
+                  Connect
+                </Button>
+              </div>
+            </details>
+          </div>
         </div>
       </section>
     </div>

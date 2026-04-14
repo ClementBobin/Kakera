@@ -89,6 +89,7 @@ function malAnimeToEntry(anime: MalAnime, listStatus?: MalStatus): AnimeEntry {
     seasonYear: anime.start_season?.year ?? null,
     format: mapMalFormat(anime.media_type),
     source: 'myanimelist',
+    description: null,
     localPath: null,
     language: null,
     relations: (anime.related_anime ?? []).map((r) => ({
@@ -97,6 +98,7 @@ function malAnimeToEntry(anime: MalAnime, listStatus?: MalStatus): AnimeEntry {
       coverImage: r.node.main_picture?.medium ?? '',
       relationType: 'OTHER' as const,
       releaseYear: null,
+      endYear: null,
       format: 'TV' as const,
     })),
   }

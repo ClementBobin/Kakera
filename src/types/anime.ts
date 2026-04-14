@@ -8,6 +8,7 @@ export interface AnimeEntry {
   id: string
   serviceId: Record<TrackingService, string | null>
   title: { romaji: string; english: string | null; native: string }
+  description: string | null
   coverImage: string
   bannerImage: string | null
   status: WatchStatus
@@ -39,6 +40,7 @@ export interface AnimeRelation {
   coverImage: string
   relationType: 'PREQUEL' | 'SEQUEL' | 'SIDE_STORY' | 'SPIN_OFF' | 'ALTERNATIVE' | 'SUMMARY' | 'OTHER'
   releaseYear: number | null
+  endYear: number | null
   format: AnimeEntry['format']
 }
 

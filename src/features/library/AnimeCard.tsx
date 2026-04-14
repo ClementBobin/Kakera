@@ -6,16 +6,20 @@ import { useUiStore } from '@/stores/uiStore'
 import { useLibraryStore } from '@/stores/libraryStore'
 import { ContextMenu } from '@/components/ui/ContextMenu'
 import { Badge } from '@/components/ui/Badge'
+import { Tooltip } from '@/components/ui/Tooltip'
+import { X } from 'lucide-react'
 import { formatEpisodeProgress } from '@/utils/format'
 
 export interface AnimeCardProps {
   entry: AnimeEntry
   displayMode: DisplayMode
+  onRemove?: () => void
 }
 
-export function AnimeCard({ entry, displayMode }: AnimeCardProps) {
+export function AnimeCard({ entry, displayMode, onRemove }: AnimeCardProps) {
   const overlay = useSettingsStore((s) => s.settings.overlay)
   const aniCliQuality = useSettingsStore((s) => s.settings.aniCliQuality)
+  const aniCliDub = useSettingsStore((s) => s.settings.aniCliDub)
   const setSelectedAnimeId = useUiStore((s) => s.setSelectedAnimeId)
   const setIsDetailOpen = useUiStore((s) => s.setIsDetailOpen)
   const entries = useLibraryStore((s) => s.entries)
@@ -35,6 +39,7 @@ export function AnimeCard({ entry, displayMode }: AnimeCardProps) {
         slug: entry.title.romaji,
         episode: nextEp,
         quality: aniCliQuality,
+        dub: aniCliDub,
       })
     } catch (error) {
       console.error('Failed to launch ani-cli:', error)
@@ -60,6 +65,9 @@ export function AnimeCard({ entry, displayMode }: AnimeCardProps) {
     ...(entry.serviceId.myanimelist
       ? [{ label: 'Open on MyAnimeList', onClick: () => window.open(`https://myanimelist.net/anime/${entry.serviceId.myanimelist}`) }]
       : []),
+    ...(onRemove
+      ? [{ label: 'Remove from Collection', onClick: onRemove }]
+      : []),
   ]
 
   if (displayMode === 'list') {
@@ -79,7 +87,7 @@ export function AnimeCard({ entry, displayMode }: AnimeCardProps) {
             className="w-10 h-14 object-cover rounded-md flex-shrink-0 bg-kakera-primary-700"
           />
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-white truncate">{entry.title.romaji}</p>
+            <p className="text-sm font-medium text-kakera-primary-100 truncate">{entry.title.romaji}</p>
             {entry.title.english && (
               <p className="text-xs text-kakera-muted truncate">{entry.title.english}</p>
             )}
@@ -88,6 +96,17 @@ export function AnimeCard({ entry, displayMode }: AnimeCardProps) {
             <span className="text-xs text-kakera-muted">{formatEpisodeProgress(entry.progress, entry.totalEpisodes)}</span>
             {entry.isDownloaded && overlay.showDownloadedCount && (
               <Badge variant="success">DL</Badge>
+            )}
+            {onRemove && (
+              <Tooltip content="Remove from collection">
+                <button
+                  onClick={(e) => { e.stopPropagation(); onRemove() }}
+                  className="text-kakera-muted hover:text-red-400 transition-colors focus-visible:outline-none"
+                  aria-label={`Remove ${entry.title.romaji} from collection`}
+                >
+                  <X size={14} />
+                </button>
+              </Tooltip>
             )}
           </div>
         </button>
@@ -105,6 +124,21 @@ export function AnimeCard({ entry, displayMode }: AnimeCardProps) {
         aria-label={`Open details for ${entry.title.romaji}`}
         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') openDetail() }}
       >
+        {/* Remove button (collection context) */}
+        {onRemove && (
+          <Tooltip content="Remove from collection">
+            <button
+              onClick={(e) => { e.stopPropagation(); onRemove() }}
+              className="absolute top-1 right-1 z-30 w-5 h-5 flex items-center justify-center
+                rounded-full bg-red-500/80 text-white
+                hover:bg-red-600 transition-all focus-visible:outline-none focus-visible:opacity-100"
+              aria-label={`Remove ${entry.title.romaji} from collection`}
+            >
+              <X size={10} />
+            </button>
+          </Tooltip>
+        )}
+
         {/* Cover image */}
         <div className="relative aspect-[2/3] overflow-hidden bg-kakera-primary-700">
           <img
@@ -115,22 +149,14 @@ export function AnimeCard({ entry, displayMode }: AnimeCardProps) {
             className="w-full h-full object-cover"
           />
           {/* Overlay badges */}
-          <div className="absolute top-1.5 left-1.5 flex flex-col gap-1">
+          <div className="absolute top-1.5 left-1.5 flex flex-col gap-1 items-start">
             {overlay.showUnwatchedCount && unwatched !== null && unwatched > 0 && (
               <Badge variant="info">{unwatched} new</Badge>
             )}
             {overlay.showDownloadedCount && entry.isDownloaded && (
               <Badge variant="success">DL</Badge>
             )}
-            {overlay.showLanguage && entry.language && (
-              <Badge variant="default">{entry.language}</Badge>
-            )}
           </div>
-          {overlay.showLocalSource && entry.localPath && (
-            <div className="absolute top-1.5 right-1.5">
-              <Badge variant="warning">Local</Badge>
-            </div>
-          )}
           {/* Hover overlay */}
           <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2 p-2">
             {overlay.showResumeButton && entry.progress > 0 && (
@@ -156,7 +182,7 @@ export function AnimeCard({ entry, displayMode }: AnimeCardProps) {
         {/* Title and meta */}
         {displayMode !== 'grid_cover_only' && (
           <div className="p-2">
-            <p className="text-xs font-medium text-white truncate leading-snug">{entry.title.romaji}</p>
+            <p className="text-xs font-medium text-kakera-primary-100 truncate leading-snug">{entry.title.romaji}</p>
             {displayMode === 'grid_spacious' && (
               <p className="text-[10px] text-kakera-muted mt-0.5">{formatEpisodeProgress(entry.progress, entry.totalEpisodes)}</p>
             )}

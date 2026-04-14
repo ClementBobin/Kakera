@@ -3,6 +3,14 @@ import { useCollectionsStore } from '@/stores/collectionsStore'
 import { useLibraryStore } from '@/stores/libraryStore'
 import { Button } from '@/components/ui/Button'
 import { CollectionEditor } from '@/features/collections/CollectionEditor'
+import { Plus } from 'lucide-react'
+import * as LucideIcons from 'lucide-react'
+
+function CollectionIcon({ icon, size = 20 }: { icon: string; size?: number }) {
+  const Icon = (LucideIcons as Record<string, unknown>)[icon] as React.ComponentType<{ size?: number }> | undefined
+  if (Icon) return <Icon size={size} />
+  return <span style={{ fontSize: size * 0.9 }}>{icon}</span>
+}
 
 export interface CollectionListProps {
   onSelect: (id: string) => void
@@ -16,9 +24,9 @@ export function CollectionList({ onSelect }: CollectionListProps) {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-white">Collections</h2>
+        <h2 className="text-lg font-semibold text-kakera-primary-100">Collections</h2>
         <Button size="sm" onClick={() => setEditorOpen(true)} aria-label="Create new collection">
-          + New Collection
+          <Plus size={14} className="mr-1" /> New Collection
         </Button>
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -34,9 +42,11 @@ export function CollectionList({ onSelect }: CollectionListProps) {
               style={{ borderLeftColor: col.color, borderLeftWidth: 3 }}
               aria-label={`Open collection ${col.name}`}
             >
-              <span className="text-2xl">{col.icon}</span>
+              <span style={{ color: col.color }}>
+                <CollectionIcon icon={col.icon} size={20} />
+              </span>
               <div>
-                <p className="text-sm font-semibold text-white">{col.name}</p>
+                <p className="text-sm font-semibold text-kakera-primary-100">{col.name}</p>
                 <p className="text-xs text-kakera-muted">{count} anime</p>
               </div>
             </button>

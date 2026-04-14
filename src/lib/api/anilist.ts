@@ -33,6 +33,7 @@ query ($userId: Int) {
                 title { romaji }
                 coverImage { large }
                 startDate { year }
+                endDate { year }
                 format
               }
             }
@@ -85,6 +86,7 @@ query ($id: Int) {
           title { romaji }
           coverImage { large }
           startDate { year }
+          endDate { year }
           format
         }
       }
@@ -133,6 +135,7 @@ interface AniListRelationNode {
   title: AniListTitle
   coverImage: AniListCoverImage
   startDate: { year: number | null }
+  endDate: { year: number | null }
   format: string
 }
 
@@ -257,6 +260,7 @@ function mediaToEntry(media: AniListMedia, listEntry?: AniListListEntry): AnimeE
     seasonYear: media.seasonYear,
     format: mapFormat(media.format),
     source: 'anilist',
+    description: null,
     localPath: null,
     language: null,
     relations: media.relations.edges.map((e) => ({
@@ -265,6 +269,7 @@ function mediaToEntry(media: AniListMedia, listEntry?: AniListListEntry): AnimeE
       coverImage: e.node.coverImage.large,
       relationType: mapRelationType(e.relationType),
       releaseYear: e.node.startDate.year,
+      endYear: e.node.endDate.year,
       format: mapFormat(e.node.format),
     })),
   }

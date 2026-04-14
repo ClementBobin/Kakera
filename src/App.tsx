@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { AppLayout } from '@/components/layout/AppLayout'
-import { applyTheme } from '@/lib/theme'
+import { applyTheme, watchSystemTheme } from '@/lib/theme'
 import { useSettingsStore } from '@/stores/settingsStore'
 import LibraryPage from '@/pages/LibraryPage'
 import CalendarPage from '@/pages/CalendarPage'
-import CollectionsPage from '@/pages/CollectionsPage'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -17,18 +16,20 @@ const queryClient = new QueryClient({
 })
 
 function AppInner() {
-  const [currentPage, setCurrentPage] = useState<'library' | 'calendar' | 'collections'>('library')
+  const [currentPage, setCurrentPage] = useState<'library' | 'calendar'>('library')
   const settings = useSettingsStore((s) => s.settings)
 
   useEffect(() => {
     applyTheme(settings.theme, settings.themePreset)
+    if (settings.theme === 'auto') {
+      return watchSystemTheme(settings.themePreset)
+    }
   }, [settings.theme, settings.themePreset])
 
   return (
     <AppLayout currentPage={currentPage} onNavigate={setCurrentPage}>
       {currentPage === 'library' && <LibraryPage />}
       {currentPage === 'calendar' && <CalendarPage />}
-      {currentPage === 'collections' && <CollectionsPage />}
     </AppLayout>
   )
 }
