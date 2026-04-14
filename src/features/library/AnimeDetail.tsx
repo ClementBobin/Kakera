@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { invoke } from '@tauri-apps/api/core'
 import { useUiStore } from '@/stores/uiStore'
 import { useSettingsStore } from '@/stores/settingsStore'
@@ -92,6 +92,11 @@ export function AnimeDetail() {
   const [isDownloading, setIsDownloading] = useState(false)
   const [episodeView, setEpisodeView] = useState<'list' | 'grid'>('list')
   const [dub, setDub] = useState(() => settings.aniCliDub)
+
+  // Reset dub preference from settings whenever a different anime is opened
+  useEffect(() => {
+    setDub(settings.aniCliDub)
+  }, [selectedAnimeId, settings.aniCliDub])
 
   if (!isDetailOpen) return null
 
@@ -426,6 +431,18 @@ export function AnimeDetail() {
                 )}
               </div>
 
+              {/* Relations timeline */}
+              {anime.relations.length > 0 && (
+                <div>
+                  <h3 className="text-sm font-semibold text-white mb-2">Related</h3>
+                  <RelationsTimeline
+                    relations={anime.relations}
+                    currentAnimeId={anime.id}
+                    onSelect={(id) => { setSelectedAnimeId(id) }}
+                  />
+                </div>
+              )}
+
               {/* Episode list/grid */}
               {episodes.length > 0 && (
                 <div>
@@ -460,7 +477,7 @@ export function AnimeDetail() {
                   </div>
 
                   {episodeView === 'list' ? (
-                    <div className="flex flex-col gap-1 max-h-72 overflow-y-auto scrollbar-thin">
+                    <div className="flex flex-col gap-1">
                       {episodes.map((ep) => {
                         const isWatched = ep <= anime.progress
                         const isDownloaded = anime.downloadedEpisodes.includes(ep)
@@ -484,22 +501,28 @@ export function AnimeDetail() {
                     </div>
                   ) : (
                     /* Grid view — compact numbered buttons */
-                    <div className="grid grid-cols-6 gap-1 max-h-72 overflow-y-auto scrollbar-thin">
+                    <div className="grid grid-cols-6 gap-1">
                       {episodes.map((ep) => {
                         const isWatched = ep <= anime.progress
                         const isDownloaded = anime.downloadedEpisodes.includes(ep)
                         const isFuture = isEpisodeFuture(ep)
-                        let cls = 'w-full aspect-square flex items-center justify-center rounded text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-kakera-accent'
-                        if (isFuture) cls += ' bg-kakera-primary-900 text-kakera-primary-600 cursor-default opacity-50'
-                        else if (isWatched) cls += ' bg-kakera-primary-700 text-kakera-primary-400 cursor-pointer hover:bg-kakera-primary-600'
-                        else cls += ' bg-kakera-accent/20 text-kakera-accent-light cursor-pointer hover:bg-kakera-accent/40'
-                        if (isDownloaded && !isFuture) cls += ' ring-1 ring-green-500'
+                        let cls = 'w-full aspect-square flex items-center justify-center rounded text-xs font-medium transition-colors border focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-kakera-accent'
+                        if (isFuture) {
+                          cls += ' bg-kakera-primary-900/60 border-kakera-primary-800 text-kakera-primary-600 cursor-default opacity-60'
+                        } else if (isWatched) {
+                          cls += ' bg-green-950/40 border-green-900/40 text-kakera-primary-400 cursor-pointer hover:bg-green-900/40'
+                        } else if (isDownloaded) {
+                          cls += ' bg-kakera-accent/10 border-kakera-accent/30 text-kakera-accent cursor-pointer hover:bg-kakera-accent/20'
+                        } else {
+                          cls += ' bg-kakera-primary-800 border-kakera-primary-700 text-white cursor-pointer hover:bg-kakera-primary-700'
+                        }
+                        const label = `Episode ${ep}${isWatched ? ' (watched)' : ''}${isDownloaded ? ' (downloaded)' : ''}${isFuture ? ' (not yet aired)' : ''}`
                         return (
-                          <Tooltip key={ep} content={`Episode ${ep}${isWatched ? ' ✓' : ''}${isDownloaded ? ' · DL' : ''}`}>
+                          <Tooltip key={ep} content={label}>
                             <button
                               className={cls}
                               onClick={isFuture ? undefined : () => void handlePlay(ep)}
-                              aria-label={`Episode ${ep}`}
+                              aria-label={label}
                               disabled={isFuture}
                             >
                               {ep}
@@ -509,18 +532,6 @@ export function AnimeDetail() {
                       })}
                     </div>
                   )}
-                </div>
-              )}
-
-              {/* Relations timeline */}
-              {anime.relations.length > 0 && (
-                <div>
-                  <h3 className="text-sm font-semibold text-white mb-2">Related</h3>
-                  <RelationsTimeline
-                    relations={anime.relations}
-                    currentAnimeId={anime.id}
-                    onSelect={(id) => { setSelectedAnimeId(id) }}
-                  />
                 </div>
               )}
             </div>
