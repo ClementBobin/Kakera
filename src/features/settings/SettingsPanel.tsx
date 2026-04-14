@@ -16,6 +16,8 @@ const THEME_PRESETS: { value: ThemePreset; label: string; color: string }[] = [
   { value: 'crepuscule-de-minuit',label: 'Crépuscule de minuit', color: '#6272e0' },
 ]
 
+// OAuth client IDs must be set via environment variables or app configuration before shipping.
+// Replace the placeholder values below with your registered application's client IDs.
 const ANILIST_OAUTH_URL = 'https://anilist.co/api/v2/oauth/authorize?client_id=YOUR_ANILIST_CLIENT_ID&response_type=token'
 const MAL_OAUTH_URL = 'https://myanimelist.net/v1/oauth2/authorize?response_type=code&client_id=YOUR_MAL_CLIENT_ID'
 

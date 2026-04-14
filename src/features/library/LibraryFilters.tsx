@@ -69,7 +69,7 @@ export function LibraryFilters() {
             />
           </div>
           <span className="text-xs text-kakera-muted shrink-0 tabular-nums">
-            {filteredEntries.length} {filteredEntries.length === 1 ? 'anime' : 'anime'}
+            {filteredEntries.length} anime
           </span>
         </div>
       )}
