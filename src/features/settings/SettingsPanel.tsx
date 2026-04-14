@@ -4,6 +4,7 @@ import { applyTheme } from '@/lib/theme'
 import { Button, Input, Select, Checkbox, Slider } from '@/components/ui'
 import { Tooltip } from '@/components/ui/Tooltip'
 import type { Theme, ThemePreset, DisplayMode, VideoQuality } from '@/types/settings'
+import { open } from '@tauri-apps/plugin-shell';
 
 const THEME_TOOLTIPS: Record<Theme, string> = {
   light: 'Always use light mode',
@@ -25,7 +26,7 @@ const THEME_PRESETS: { value: ThemePreset; label: string; color: string }[] = [
 
 // OAuth client IDs must be set via environment variables or app configuration before shipping.
 // Replace the placeholder values below with your registered application's client IDs.
-const ANILIST_OAUTH_URL = 'https://anilist.co/api/v2/oauth/authorize?client_id=YOUR_ANILIST_CLIENT_ID&response_type=token'
+const ANILIST_OAUTH_URL = 'https://anilist.co/api/v2/oauth/authorize?client_id=39241&response_type=token'
 const MAL_OAUTH_URL = 'https://myanimelist.net/v1/oauth2/authorize?response_type=code&client_id=YOUR_MAL_CLIENT_ID'
 
 export function SettingsPanel() {
@@ -250,7 +251,13 @@ export function SettingsPanel() {
                 <Button
                   variant="primary"
                   size="sm"
-                  onClick={() => window.open(ANILIST_OAUTH_URL, '_blank')}
+                  onClick={async () => {
+                    try {
+                      await open(ANILIST_OAUTH_URL);
+                    } catch (err) {
+                      console.error("Failed to open browser:", err);
+                    }
+                  }}
                   aria-label="Connect AniList via OAuth"
                 >
                   Connect with AniList

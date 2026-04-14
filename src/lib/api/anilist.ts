@@ -302,13 +302,23 @@ export class AniListClient {
   }
 
   async getViewerLibrary(): Promise<AnimeEntry[]> {
+    // 1. Get the current user's ID
+    const viewerData = await this.query<{ Viewer: { id: number } }>(
+      `query { Viewer { id } }`, 
+      {}
+    );
+    
+    const userId = viewerData.Viewer.id;
+
+    // 2. Use that ID to get the library
     const data = await this.query<{ MediaListCollection: { lists: AniListList[] } }>(
       LIBRARY_QUERY,
-      { userId: null }
-    )
+      { userId } // Now passing a real ID
+    );
+
     return data.MediaListCollection.lists.flatMap((list) =>
       list.entries.map((entry) => mediaToEntry(entry.media, entry))
-    )
+    );
   }
 
   async searchAnime(query: string): Promise<AnimeEntry[]> {
