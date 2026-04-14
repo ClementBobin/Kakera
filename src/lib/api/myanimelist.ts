@@ -98,6 +98,7 @@ function malAnimeToEntry(anime: MalAnime, listStatus?: MalStatus): AnimeEntry {
       coverImage: r.node.main_picture?.medium ?? '',
       relationType: 'OTHER' as const,
       releaseYear: null,
+      endYear: null,
       format: 'TV' as const,
     })),
   }

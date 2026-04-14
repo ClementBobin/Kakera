@@ -40,6 +40,7 @@ export interface AnimeRelation {
   coverImage: string
   relationType: 'PREQUEL' | 'SEQUEL' | 'SIDE_STORY' | 'SPIN_OFF' | 'ALTERNATIVE' | 'SUMMARY' | 'OTHER'
   releaseYear: number | null
+  endYear: number | null
   format: AnimeEntry['format']
 }
 
