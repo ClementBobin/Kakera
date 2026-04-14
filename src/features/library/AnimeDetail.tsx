@@ -109,8 +109,15 @@ export function AnimeDetail() {
 
   const handleDownload = async () => {
     if (!anime) return
-    const start = dlEpStart ? parseInt(dlEpStart, 10) : 1
-    const end = dlEpEnd ? parseInt(dlEpEnd, 10) : (anime.totalEpisodes ?? anime.progress)
+    const startRaw = parseInt(dlEpStart, 10)
+    const endRaw = parseInt(dlEpEnd, 10)
+    const maxEp = anime.totalEpisodes ?? anime.progress
+    const start = dlEpStart && !isNaN(startRaw) && startRaw > 0 ? startRaw : 1
+    const end = dlEpEnd && !isNaN(endRaw) && endRaw > 0 ? endRaw : maxEp
+    if (start > end) {
+      console.warn('Download range invalid: start > end')
+      return
+    }
     setIsDownloading(true)
     try {
       await invoke('download_anime', {
@@ -145,13 +152,23 @@ export function AnimeDetail() {
     setEntries(updated)
   }
 
-  // Build episode list
+  // Build episode list — show at least 1 episode if progress > 0 even when totalEpisodes is unknown
   const buildEpisodes = () => {
     if (!anime) return []
-    const total = anime.totalEpisodes ?? Math.max(anime.progress, anime.nextEpisodeNumber ?? 0)
-    if (total === 0) return []
-    return Array.from({ length: total }, (_, i) => i + 1)
+    const total = anime.totalEpisodes
+      ?? Math.max(anime.progress, anime.nextEpisodeNumber ?? 0)
+    // If we still have no information about episode count, skip the list
+    if (total <= 0 && anime.progress === 0) return []
+    const count = Math.max(total, anime.progress)
+    return Array.from({ length: count }, (_, i) => i + 1)
   }
+
+  /** Returns true when an episode number has not yet aired. */
+  const isEpisodeFuture = (ep: number): boolean =>
+    anime != null &&
+    anime.nextEpisodeNumber != null &&
+    ep >= anime.nextEpisodeNumber &&
+    anime.nextEpisodeAt != null
 
   const episodes = anime ? buildEpisodes() : []
   const isCompleted = anime?.status === 'completed' || (anime?.totalEpisodes != null && anime.progress >= anime.totalEpisodes)
@@ -360,7 +377,7 @@ export function AnimeDetail() {
                     {episodes.map((ep) => {
                       const isWatched = ep <= anime.progress
                       const isDownloaded = anime.downloadedEpisodes.includes(ep)
-                      const isFuture = anime.nextEpisodeNumber != null && ep >= anime.nextEpisodeNumber && anime.nextEpisodeAt != null
+                      const isFuture = isEpisodeFuture(ep)
                       const futureAirDate = (isFuture && anime.nextEpisodeNumber === ep) ? (anime.nextEpisodeAt ?? undefined) : undefined
                       const watchedDate = (isWatched && ep === anime.progress) ? anime.lastWatched : null
 
