@@ -19,6 +19,7 @@ export interface AnimeCardProps {
 export function AnimeCard({ entry, displayMode, onRemove }: AnimeCardProps) {
   const overlay = useSettingsStore((s) => s.settings.overlay)
   const aniCliQuality = useSettingsStore((s) => s.settings.aniCliQuality)
+  const aniCliDub = useSettingsStore((s) => s.settings.aniCliDub)
   const setSelectedAnimeId = useUiStore((s) => s.setSelectedAnimeId)
   const setIsDetailOpen = useUiStore((s) => s.setIsDetailOpen)
   const entries = useLibraryStore((s) => s.entries)
@@ -38,6 +39,7 @@ export function AnimeCard({ entry, displayMode, onRemove }: AnimeCardProps) {
         slug: entry.title.romaji,
         episode: nextEp,
         quality: aniCliQuality,
+        dub: aniCliDub,
       })
     } catch (error) {
       console.error('Failed to launch ani-cli:', error)
@@ -127,9 +129,9 @@ export function AnimeCard({ entry, displayMode, onRemove }: AnimeCardProps) {
           <Tooltip content="Remove from collection">
             <button
               onClick={(e) => { e.stopPropagation(); onRemove() }}
-              className="absolute top-1 right-1 z-20 w-5 h-5 flex items-center justify-center
-                rounded-full bg-black/60 text-white opacity-0 group-hover:opacity-100
-                hover:bg-red-500 transition-all focus-visible:outline-none focus-visible:opacity-100"
+              className="absolute top-1 right-1 z-30 w-5 h-5 flex items-center justify-center
+                rounded-full bg-red-500/80 text-white
+                hover:bg-red-600 transition-all focus-visible:outline-none focus-visible:opacity-100"
               aria-label={`Remove ${entry.title.romaji} from collection`}
             >
               <X size={10} />

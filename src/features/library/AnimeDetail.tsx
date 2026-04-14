@@ -31,19 +31,22 @@ function EpisodeRow({ episodeNumber, isWatched, isDownloaded, isFuture, futureAi
   let sub: React.ReactNode = null
 
   if (isFuture) {
-    rowClass += ' bg-kakera-primary-800/50 opacity-60'
+    rowClass += ' bg-kakera-primary-900/60 border border-kakera-primary-800 opacity-60'
     icon = <Lock size={12} className="shrink-0 text-kakera-muted" />
     if (futureAirDate) {
       sub = <span className="text-[10px] text-kakera-muted">{formatAiringDate(futureAirDate)}</span>
     }
   } else if (isWatched) {
-    rowClass += ' bg-kakera-primary-900'
+    rowClass += ' bg-green-950/40 border border-green-900/40'
     icon = <CheckCircle size={12} className="shrink-0 text-green-400" />
     if (lastWatchedDate) {
       sub = <span className="text-[10px] text-kakera-muted">{new Date(lastWatchedDate).toLocaleDateString()}</span>
     }
+  } else if (isDownloaded) {
+    rowClass += ' bg-kakera-accent/10 border border-kakera-accent/30 hover:bg-kakera-accent/20 cursor-pointer'
+    icon = <Play size={12} className="shrink-0 text-kakera-accent" />
   } else {
-    rowClass += ' bg-kakera-primary-800 hover:bg-kakera-primary-700 cursor-pointer'
+    rowClass += ' bg-kakera-primary-800 border border-kakera-primary-700 hover:bg-kakera-primary-700 cursor-pointer'
     icon = <Play size={12} className="shrink-0 text-kakera-accent" />
   }
 
@@ -88,6 +91,7 @@ export function AnimeDetail() {
   const [dlEpEnd, setDlEpEnd] = useState('')
   const [isDownloading, setIsDownloading] = useState(false)
   const [episodeView, setEpisodeView] = useState<'list' | 'grid'>('list')
+  const [dub, setDub] = useState(() => settings.aniCliDub)
 
   if (!isDetailOpen) return null
 
@@ -103,6 +107,7 @@ export function AnimeDetail() {
         slug: anime.title.romaji,
         episode: ep ?? anime.progress + 1,
         quality: settings.aniCliQuality,
+        dub,
       })
     } catch (error) {
       console.error('Failed to launch ani-cli:', error)
@@ -241,15 +246,46 @@ export function AnimeDetail() {
             <div className="px-6 py-4 flex flex-col gap-6">
               {/* Score + badges */}
               <div className="flex items-center gap-3 flex-wrap">
-                <div className="flex items-center gap-1">
-                  <span className="text-2xl font-bold text-kakera-accent">{formatScore(anime.score)}</span>
-                  <span className="text-xs text-kakera-muted">/10</span>
-                </div>
-                <Badge variant="info" className="capitalize">{anime.status.replace(/_/g, ' ')}</Badge>
-                <Badge variant="default">{anime.format}</Badge>
+                <Tooltip content="Score out of 10">
+                  <div className="flex items-center gap-1 cursor-default">
+                    <span className="text-2xl font-bold text-kakera-accent">{formatScore(anime.score)}</span>
+                    <span className="text-xs text-kakera-muted">/10</span>
+                  </div>
+                </Tooltip>
+                <Tooltip content={`Status: ${anime.status.replace(/_/g, ' ')}`}>
+                  <span>
+                    <Badge variant="info" className="capitalize">{anime.status.replace(/_/g, ' ')}</Badge>
+                  </span>
+                </Tooltip>
+                <Tooltip content={`Format: ${anime.format}`}>
+                  <span>
+                    <Badge variant="default">{anime.format}</Badge>
+                  </span>
+                </Tooltip>
                 {anime.addedAt && (
                   <span className="text-xs text-kakera-muted">Added {new Date(anime.addedAt).toLocaleDateString()}</span>
                 )}
+              </div>
+
+              {/* Dub toggle */}
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-kakera-primary-400">Audio:</span>
+                <button
+                  onClick={() => setDub(false)}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kakera-accent
+                    ${!dub ? 'bg-kakera-accent text-white border-kakera-accent' : 'bg-kakera-primary-800 text-kakera-primary-400 border-kakera-primary-600 hover:border-kakera-accent'}`}
+                  aria-pressed={!dub}
+                >
+                  Sub
+                </button>
+                <button
+                  onClick={() => setDub(true)}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kakera-accent
+                    ${dub ? 'bg-kakera-accent text-white border-kakera-accent' : 'bg-kakera-primary-800 text-kakera-primary-400 border-kakera-primary-600 hover:border-kakera-accent'}`}
+                  aria-pressed={dub}
+                >
+                  Dub
+                </button>
               </div>
 
               {/* Description */}

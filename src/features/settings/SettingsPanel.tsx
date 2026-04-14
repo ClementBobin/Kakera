@@ -204,6 +204,11 @@ export function SettingsPanel() {
             checked={settings.aniCliAlwaysUsePreferredQuality}
             onChange={(e) => handleUpdate('aniCliAlwaysUsePreferredQuality', e.target.checked)}
           />
+          <Checkbox
+            label="Use dubbed audio (--dub)"
+            checked={settings.aniCliDub}
+            onChange={(e) => handleUpdate('aniCliDub', e.target.checked)}
+          />
         </div>
       </section>
 

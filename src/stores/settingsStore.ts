@@ -18,6 +18,7 @@ const DEFAULT_SETTINGS: AppSettings = {
   },
   aniCliQuality: '1080p',
   aniCliAlwaysUsePreferredQuality: false,
+  aniCliDub: false,
   downloadDir: '',
   services: {
     anilist: { enabled: false, token: null, username: null },

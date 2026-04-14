@@ -33,6 +33,7 @@ export interface AppSettings {
   tabs: TabSettings
   aniCliQuality: VideoQuality
   aniCliAlwaysUsePreferredQuality: boolean
+  aniCliDub: boolean
   downloadDir: string
   services: {
     anilist: { enabled: boolean; token: string | null; username: string | null }

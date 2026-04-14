@@ -107,14 +107,13 @@ function LibraryContent({ isLoading }: { isLoading: boolean }) {
 
   const [editorOpen, setEditorOpen] = useState(false)
   const [addDialogOpen, setAddDialogOpen] = useState(false)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [addSearch, setAddSearch] = useState('')
 
   const handleDelete = () => {
-    if (!activeCollection) return
-    if (window.confirm(`Delete "${activeCollection.name}"?`)) {
-      deleteCollection(activeCollection.id)
-      setSelectedCollectionId(null)
-    }
+    deleteCollection(activeCollection!.id)
+    setSelectedCollectionId(null)
+    setDeleteDialogOpen(false)
   }
 
   const filteredAddEntries = useMemo(() => {
@@ -154,7 +153,7 @@ function LibraryContent({ isLoading }: { isLoading: boolean }) {
           </Tooltip>
           <Tooltip content="Delete collection">
             <button
-              onClick={handleDelete}
+              onClick={() => setDeleteDialogOpen(true)}
               className="p-1.5 rounded-lg text-kakera-muted hover:text-red-400 hover:bg-red-500/10
                 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 transition-colors"
               aria-label="Delete collection"
@@ -223,6 +222,22 @@ function LibraryContent({ isLoading }: { isLoading: boolean }) {
 
       {activeCollection && (
         <CollectionEditor open={editorOpen} onClose={() => setEditorOpen(false)} collection={activeCollection} />
+      )}
+
+      {/* Delete confirmation dialog */}
+      {activeCollection && (
+        <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)} title="Delete Collection">
+          <div className="flex flex-col gap-4">
+            <p className="text-sm text-kakera-primary-300">
+              Are you sure you want to delete <span className="font-semibold text-white">{activeCollection.name}</span>?
+              This action cannot be undone.
+            </p>
+            <div className="flex gap-2 justify-end">
+              <Button variant="ghost" onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
+              <Button variant="danger" onClick={handleDelete}>Delete</Button>
+            </div>
+          </div>
+        </Dialog>
       )}
     </div>
   )

@@ -6,10 +6,15 @@ pub async fn launch_ani_cli(
     slug: String,
     episode: u32,
     quality: String,
+    dub: bool,
 ) -> Result<(), String> {
+    let mut args = vec![slug.clone(), "-e".to_string(), episode.to_string(), "-q".to_string(), quality];
+    if dub {
+        args.push("--dub".to_string());
+    }
     app.shell()
         .command("ani-cli")
-        .args([&slug, "-e", &episode.to_string(), "-q", &quality])
+        .args(args)
         .spawn()
         .map_err(|e| e.to_string())?;
     Ok(())
