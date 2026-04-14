@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { invoke } from '@tauri-apps/api/core'
 import { useUiStore } from '@/stores/uiStore'
 import { useSettingsStore } from '@/stores/settingsStore'
@@ -84,6 +84,7 @@ export function AnimeDetail() {
   const setFilter = useLibraryStore((s) => s.setFilter)
   const entries = useLibraryStore((s) => s.entries)
   const setEntries = useLibraryStore((s) => s.setEntries)
+  const libraryIds = useMemo(() => new Set(entries.map((e) => e.id)), [entries])
   const settings = useSettingsStore((s) => s.settings)
   const { data: anime, isLoading } = useAnimeDetails(selectedAnimeId ?? '')
 
@@ -438,6 +439,7 @@ export function AnimeDetail() {
                   <RelationsTimeline
                     relations={anime.relations}
                     currentAnimeId={anime.id}
+                    libraryIds={libraryIds}
                     onSelect={(id) => { setSelectedAnimeId(id) }}
                   />
                 </div>
