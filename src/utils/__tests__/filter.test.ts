@@ -2,10 +2,12 @@ import { describe, it, expect } from 'vitest'
 import { filterAnime } from '@/utils/filter'
 import { MOCK_ANIME } from '@/mocks/anime'
 import type { LibraryFilters } from '@/types/filters'
+import { DEFAULT_STATUS_FILTERS } from '@/types/filters'
 import type { AnimeEntry } from '@/types/anime'
 
 const DEFAULT_FILTERS: LibraryFilters = {
   status: 'all',
+  statusFilters: { ...DEFAULT_STATUS_FILTERS },
   sort: 'alphabetical',
   search: '',
   genres: [],

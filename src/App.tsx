@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { AppLayout } from '@/components/layout/AppLayout'
-import { applyTheme } from '@/lib/theme'
+import { applyTheme, watchSystemTheme } from '@/lib/theme'
 import { useSettingsStore } from '@/stores/settingsStore'
 import LibraryPage from '@/pages/LibraryPage'
 import CalendarPage from '@/pages/CalendarPage'
@@ -21,6 +21,9 @@ function AppInner() {
 
   useEffect(() => {
     applyTheme(settings.theme, settings.themePreset)
+    if (settings.theme === 'auto') {
+      return watchSystemTheme(settings.themePreset)
+    }
   }, [settings.theme, settings.themePreset])
 
   return (

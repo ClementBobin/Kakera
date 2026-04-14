@@ -1,12 +1,14 @@
 import { create } from 'zustand'
 import { useMemo } from 'react'
 import type { AnimeEntry } from '@/types/anime'
-import type { LibraryFilters, FilterStatus, SortStrategy } from '@/types/filters'
+import type { LibraryFilters, FilterStatus, SortStrategy, StatusFilters, FilterValue } from '@/types/filters'
+import { DEFAULT_STATUS_FILTERS } from '@/types/filters'
 import { filterAnime } from '@/utils/filter'
 import { sortAnime } from '@/utils/sort'
 
 const DEFAULT_FILTERS: LibraryFilters = {
   status: 'all',
+  statusFilters: { ...DEFAULT_STATUS_FILTERS },
   sort: 'alphabetical',
   search: '',
   genres: [],
@@ -26,6 +28,8 @@ interface LibraryState {
   selectedCollectionId: string | null
   setEntries: (entries: AnimeEntry[]) => void
   setFilter: <K extends keyof LibraryFilters>(key: K, value: LibraryFilters[K]) => void
+  /** Cycle a single cumulative status filter through: 0 → 1 → -1 → 0 */
+  cycleStatusFilter: (key: keyof StatusFilters) => void
   resetFilters: () => void
   setIsSyncing: (v: boolean) => void
   setLastSyncedAt: (date: string) => void
@@ -41,6 +45,17 @@ export const useLibraryStore = create<LibraryState>((set) => ({
   setEntries: (entries) => set({ entries }),
   setFilter: (key, value) =>
     set((state) => ({ filters: { ...state.filters, [key]: value } })),
+  cycleStatusFilter: (key) =>
+    set((state) => {
+      const current: FilterValue = state.filters.statusFilters[key]
+      const next: FilterValue = current === 0 ? 1 : current === 1 ? -1 : 0
+      return {
+        filters: {
+          ...state.filters,
+          statusFilters: { ...state.filters.statusFilters, [key]: next },
+        },
+      }
+    }),
   resetFilters: () => set({ filters: DEFAULT_FILTERS }),
   setIsSyncing: (isSyncing) => set({ isSyncing }),
   setLastSyncedAt: (lastSyncedAt) => set({ lastSyncedAt }),
@@ -64,4 +79,4 @@ export function useFilteredEntries(collectionAnimeIds?: string[]): AnimeEntry[] 
 }
 
 // Re-export types consumed by downstream code
-export type { FilterStatus, SortStrategy }
+export type { FilterStatus, SortStrategy, FilterValue }

@@ -260,7 +260,22 @@ export function AnimeDetail() {
                 {anime.studios.length > 0 && (
                   <div className="flex gap-2 items-start">
                     <span className="text-xs text-kakera-muted w-14 shrink-0 pt-0.5">Studio</span>
-                    <div className="flex gap-1 flex-wrap">{anime.studios.map((s) => <Badge key={s}>{s}</Badge>)}</div>
+                    <div className="flex gap-1 flex-wrap">
+                      {anime.studios.map((s) => (
+                        <button
+                          key={s}
+                          onClick={() => {
+                            const token = `studio:${s.replace(/ /g, '_')}`
+                            setFilter('search', token)
+                            close()
+                          }}
+                          className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kakera-accent rounded"
+                          aria-label={`Search by studio ${s}`}
+                        >
+                          <Badge variant="default" className="cursor-pointer hover:bg-kakera-accent hover:text-white transition-colors">{s}</Badge>
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 )}
                 {anime.genres.length > 0 && (
@@ -270,9 +285,13 @@ export function AnimeDetail() {
                       {anime.genres.map((g) => (
                         <button
                           key={g}
-                          onClick={() => { setFilter('genres', [g]); close() }}
+                          onClick={() => {
+                            const token = `genre:${g.replace(/ /g, '_')}`
+                            setFilter('search', token)
+                            close()
+                          }}
                           className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kakera-accent rounded"
-                          aria-label={`Filter by genre ${g}`}
+                          aria-label={`Search by genre ${g}`}
                         >
                           <Badge variant="default" className="cursor-pointer hover:bg-kakera-accent hover:text-white transition-colors">{g}</Badge>
                         </button>

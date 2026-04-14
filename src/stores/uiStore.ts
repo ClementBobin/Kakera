@@ -6,12 +6,12 @@ interface UiState {
   isDetailOpen: boolean
   isSettingsOpen: boolean
   activeTab: FilterStatus
-  calendarView: 'calendar' | 'timeline' | 'list'
+  calendarView: 'calendar' | 'list'
   setSelectedAnimeId: (id: string | null) => void
   setIsDetailOpen: (v: boolean) => void
   setIsSettingsOpen: (v: boolean) => void
   setActiveTab: (tab: FilterStatus) => void
-  setCalendarView: (view: 'calendar' | 'timeline' | 'list') => void
+  setCalendarView: (view: 'calendar' | 'list') => void
 }
 
 export const useUiStore = create<UiState>((set) => ({

@@ -2,12 +2,14 @@ import { describe, it, expect, beforeEach } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
 import { useFilteredEntries, useLibraryStore } from '@/stores/libraryStore'
 import { MOCK_ANIME } from '@/mocks'
+import { DEFAULT_STATUS_FILTERS } from '@/types/filters'
 
 beforeEach(() => {
   useLibraryStore.setState({
     entries: MOCK_ANIME,
     filters: {
       status: 'all',
+      statusFilters: { ...DEFAULT_STATUS_FILTERS },
       sort: 'alphabetical',
       search: '',
       genres: [],
@@ -28,26 +30,26 @@ describe('useFilteredEntries', () => {
     expect(result.current).toHaveLength(MOCK_ANIME.length)
   })
 
-  it('returns only completed entries when status filter is completed', () => {
+  it('returns only completed entries when statusFilters.completed = 1', () => {
     act(() => {
-      useLibraryStore.getState().setFilter('status', 'completed')
+      useLibraryStore.getState().cycleStatusFilter('completed') // 0 → 1
     })
     const { result } = renderHook(() => useFilteredEntries())
     expect(result.current.length).toBeGreaterThan(0)
     expect(result.current.every((e) => e.status === 'completed')).toBe(true)
   })
 
-  it('returns only started entries when status filter is started', () => {
+  it('returns only watching entries when statusFilters.watching = 1', () => {
     act(() => {
-      useLibraryStore.getState().setFilter('status', 'started')
+      useLibraryStore.getState().cycleStatusFilter('watching') // 0 → 1
     })
     const { result } = renderHook(() => useFilteredEntries())
     expect(result.current.every((e) => e.progress > 0 && e.status !== 'completed')).toBe(true)
   })
 
-  it('returns only favorite entries when status filter is favorites', () => {
+  it('returns only favorite entries when statusFilters.favorites = 1', () => {
     act(() => {
-      useLibraryStore.getState().setFilter('status', 'favorites')
+      useLibraryStore.getState().cycleStatusFilter('favorites') // 0 → 1
     })
     const { result } = renderHook(() => useFilteredEntries())
     expect(result.current.every((e) => e.isFavorite)).toBe(true)
@@ -70,9 +72,9 @@ describe('useFilteredEntries', () => {
     expect(titles).toEqual(sorted)
   })
 
-  it('returns only downloaded entries when status filter is downloaded', () => {
+  it('returns only downloaded entries when statusFilters.downloaded = 1', () => {
     act(() => {
-      useLibraryStore.getState().setFilter('status', 'downloaded')
+      useLibraryStore.getState().cycleStatusFilter('downloaded') // 0 → 1
     })
     const { result } = renderHook(() => useFilteredEntries())
     expect(result.current.every((e) => e.isDownloaded)).toBe(true)

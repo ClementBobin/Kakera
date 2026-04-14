@@ -115,7 +115,7 @@ export function AnimeCard({ entry, displayMode }: AnimeCardProps) {
             className="w-full h-full object-cover"
           />
           {/* Overlay badges */}
-          <div className="absolute top-1.5 left-1.5 flex flex-col gap-1">
+          <div className="absolute top-1.5 left-1.5 flex flex-col gap-1 items-start">
             {overlay.showUnwatchedCount && unwatched !== null && unwatched > 0 && (
               <Badge variant="info">{unwatched} new</Badge>
             )}

@@ -19,3 +19,15 @@ export function applyTheme(theme: Theme, preset: ThemePreset): void {
     root.classList.remove('dark')
   }
 }
+
+/**
+ * Registers a listener so that when the OS colour-scheme changes and the app
+ * is set to "auto" mode the theme is reapplied automatically.
+ * Returns a cleanup function to remove the listener.
+ */
+export function watchSystemTheme(preset: ThemePreset): () => void {
+  const mq = window.matchMedia('(prefers-color-scheme: dark)')
+  const handler = () => applyTheme('auto', preset)
+  mq.addEventListener('change', handler)
+  return () => mq.removeEventListener('change', handler)
+}

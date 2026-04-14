@@ -2,7 +2,14 @@ import { useSettingsStore } from '@/stores/settingsStore'
 import { useSaveSettings } from '@/hooks/useSettings'
 import { applyTheme } from '@/lib/theme'
 import { Button, Input, Select, Checkbox, Slider } from '@/components/ui'
+import { Tooltip } from '@/components/ui/Tooltip'
 import type { Theme, ThemePreset, DisplayMode, VideoQuality } from '@/types/settings'
+
+const THEME_TOOLTIPS: Record<Theme, string> = {
+  light: 'Always use light mode',
+  dark: 'Always use dark mode',
+  auto: 'Follow the OS colour-scheme preference',
+}
 
 const THEME_PRESETS: { value: ThemePreset; label: string; color: string }[] = [
   { value: 'slate',               label: 'Slate',              color: '#7c3aed' },
@@ -57,6 +64,14 @@ export function SettingsPanel() {
     { value: 'best', label: 'Best available' },
   ]
 
+  const OVERLAY_TOOLTIPS: Record<string, string> = {
+    showDownloadedCount: 'Show a "DL" badge on downloaded anime',
+    showUnwatchedCount: 'Show how many unwatched episodes are available',
+    showLocalSource: 'Show a "Local" badge when the anime has a local file path',
+    showLanguage: 'Show the language/dub badge on each card',
+    showResumeButton: 'Show the "Resume" button in the hover overlay',
+  }
+
   return (
     <div className="flex flex-col gap-8 max-w-2xl">
       {/* Appearance */}
@@ -67,19 +82,20 @@ export function SettingsPanel() {
             <p className="text-sm font-medium text-kakera-primary-300 mb-2">Theme</p>
             <div className="flex gap-2" role="group" aria-label="Theme selection">
               {(['light', 'dark', 'auto'] as Theme[]).map((t) => (
-                <button
-                  key={t}
-                  onClick={() => handleThemeChange(t)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium capitalize border transition-colors
-                    focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kakera-accent
-                    ${settings.theme === t
-                      ? 'bg-kakera-accent text-white border-kakera-accent'
-                      : 'bg-kakera-primary-800 text-kakera-primary-300 border-kakera-primary-600 hover:border-kakera-accent'
-                    }`}
-                  aria-pressed={settings.theme === t}
-                >
-                  {t}
-                </button>
+                <Tooltip key={t} content={THEME_TOOLTIPS[t]}>
+                  <button
+                    onClick={() => handleThemeChange(t)}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium capitalize border transition-colors
+                      focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kakera-accent
+                      ${settings.theme === t
+                        ? 'bg-kakera-accent text-white border-kakera-accent'
+                        : 'bg-kakera-primary-800 text-kakera-primary-300 border-kakera-primary-600 hover:border-kakera-accent'
+                      }`}
+                    aria-pressed={settings.theme === t}
+                  >
+                    {t}
+                  </button>
+                </Tooltip>
               ))}
             </div>
           </div>
@@ -87,23 +103,24 @@ export function SettingsPanel() {
             <p className="text-sm font-medium text-kakera-primary-300 mb-2">Color Scheme</p>
             <div className="grid grid-cols-3 gap-2" role="group" aria-label="Color scheme selection">
               {THEME_PRESETS.map((p) => (
-                <button
-                  key={p.value}
-                  onClick={() => handlePresetChange(p.value)}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium border transition-colors
-                    focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kakera-accent
-                    ${settings.themePreset === p.value
-                      ? 'bg-kakera-accent text-white border-kakera-accent'
-                      : 'bg-kakera-primary-800 text-kakera-primary-300 border-kakera-primary-600 hover:border-kakera-accent'
-                    }`}
-                  aria-pressed={settings.themePreset === p.value}
-                >
-                  <span
-                    className="w-3 h-3 rounded-full shrink-0"
-                    style={{ backgroundColor: p.color }}
-                  />
-                  {p.label}
-                </button>
+                <Tooltip key={p.value} content={`Apply the ${p.label} colour scheme`}>
+                  <button
+                    onClick={() => handlePresetChange(p.value)}
+                    className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium border transition-colors
+                      focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kakera-accent
+                      ${settings.themePreset === p.value
+                        ? 'bg-kakera-accent text-white border-kakera-accent'
+                        : 'bg-kakera-primary-800 text-kakera-primary-300 border-kakera-primary-600 hover:border-kakera-accent'
+                      }`}
+                    aria-pressed={settings.themePreset === p.value}
+                  >
+                    <span
+                      className="w-3 h-3 rounded-full shrink-0"
+                      style={{ backgroundColor: p.color }}
+                    />
+                    {p.label}
+                  </button>
+                </Tooltip>
               ))}
             </div>
           </div>
@@ -145,14 +162,15 @@ export function SettingsPanel() {
         <h2 className="text-base font-semibold text-white mb-4">Overlays</h2>
         <div className="flex flex-col gap-2">
           {(Object.keys(settings.overlay) as (keyof typeof settings.overlay)[]).map((key) => (
-            <Checkbox
-              key={key}
-              label={key.replace(/([A-Z])/g, ' $1').replace(/^show /, 'Show ').trim()}
-              checked={settings.overlay[key]}
-              onChange={(e) =>
-                handleUpdate('overlay', { ...settings.overlay, [key]: e.target.checked })
-              }
-            />
+            <Tooltip key={key} content={OVERLAY_TOOLTIPS[key] ?? key} side="right">
+              <Checkbox
+                label={key.replace(/([A-Z])/g, ' $1').replace(/^show /, 'Show ').trim()}
+                checked={settings.overlay[key]}
+                onChange={(e) =>
+                  handleUpdate('overlay', { ...settings.overlay, [key]: e.target.checked })
+                }
+              />
+            </Tooltip>
           ))}
         </div>
       </section>
@@ -161,13 +179,15 @@ export function SettingsPanel() {
       <section>
         <h2 className="text-base font-semibold text-white mb-4">Tabs</h2>
         <div className="flex flex-col gap-2">
-          <Checkbox
-            label="Show category tabs"
-            checked={settings.tabs.showCategoryTabs}
-            onChange={(e) =>
-              handleUpdate('tabs', { ...settings.tabs, showCategoryTabs: e.target.checked })
-            }
-          />
+          <Tooltip content="Show the filter tabs (Watching, Completed, Downloaded…) in the library" side="right">
+            <Checkbox
+              label="Show category tabs"
+              checked={settings.tabs.showCategoryTabs}
+              onChange={(e) =>
+                handleUpdate('tabs', { ...settings.tabs, showCategoryTabs: e.target.checked })
+              }
+            />
+          </Tooltip>
         </div>
       </section>
 
