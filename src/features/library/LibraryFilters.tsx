@@ -48,6 +48,12 @@ export interface LibraryFiltersProps {
 
 type CommittedTag = SearchToken & { type: 'genre' | 'studio' }
 
+interface SuggestionItem {
+  label: string
+  tag?: CommittedTag
+  isTitle?: boolean
+}
+
 function serializeCommitted(tags: CommittedTag[]): string {
   return tags
     .map((t) => `${t.negate ? '-' : ''}${t.type}:${t.value.replace(/ /g, '_')}`)
@@ -95,7 +101,7 @@ function parseIntoCommitted(raw: string): { committed: CommittedTag[]; inputText
 interface SmartSearchProps {
   value: string
   onChange: (v: string) => void
-  allEntries: { genres: string[]; studios: string[] }[]
+  allEntries: { genres: string[]; studios: string[]; title: { romaji: string; english: string | null } }[]
 }
 
 function SmartSearch({ value, onChange, allEntries }: SmartSearchProps) {
@@ -105,11 +111,14 @@ function SmartSearch({ value, onChange, allEntries }: SmartSearchProps) {
   const [debouncedInput, setDebouncedInput] = useState(inputText)
   const inputRef = useRef<HTMLInputElement>(null)
 
-  // Sync when value changes externally (e.g. from AnimeDetail)
-  const prevValue = useRef(value)
+  // Track the last value we emitted so the external-sync effect can skip our own changes.
+  // This prevents `genre:i` (still being typed) from being re-parsed as a committed tag.
+  const lastEmittedRef = useRef(value)
+
+  // Sync only when the value was changed by an *external* source (e.g. AnimeDetail clicking a genre)
   useEffect(() => {
-    if (value !== prevValue.current) {
-      prevValue.current = value
+    if (value !== lastEmittedRef.current) {
+      lastEmittedRef.current = value
       const { committed: newC, inputText: newI } = parseIntoCommitted(value)
       setCommitted(newC)
       setInputText(newI)
@@ -135,30 +144,24 @@ function SmartSearch({ value, onChange, allEntries }: SmartSearchProps) {
   }, [allEntries])
 
   // Compute suggestions from debounced input
-  const suggestions: Array<{ label: string; tag?: CommittedTag }> = useMemo(() => {
+  const suggestions: SuggestionItem[] = useMemo(() => {
     const trimmed = debouncedInput.trimEnd()
     const lastWord = trimmed.split(/\s+/).pop() ?? ''
     const negate = lastWord.startsWith('-')
     const clean = negate ? lastWord.slice(1) : lastWord
 
-    // User typed just '+', '-', or started with 'g'/'s' etc. → offer type prefixes
+    // User typed just '+', '-', or nothing → offer type prefixes
     if (clean === '+' || clean === '') {
-      return [
-        { label: 'genre:', tag: undefined },
-        { label: 'studio:', tag: undefined },
-      ]
+      return [{ label: 'genre:' }, { label: 'studio:' }]
     }
     if (clean === '-') {
-      return [
-        { label: '-genre:', tag: undefined },
-        { label: '-studio:', tag: undefined },
-      ]
+      return [{ label: '-genre:' }, { label: '-studio:' }]
     }
 
     const colonIdx = clean.indexOf(':')
 
     if (colonIdx > 0) {
-      // Typing inside a tag value
+      // Typing inside a tag value → suggest matching genres/studios only
       const type = clean.slice(0, colonIdx).toLowerCase()
       const partial = clean.slice(colonIdx + 1).replace(/_/g, ' ').toLowerCase()
       if (partial.length < 2) return []
@@ -172,25 +175,37 @@ function SmartSearch({ value, onChange, allEntries }: SmartSearchProps) {
         }))
     }
 
-    // Plain text – suggest genre:/studio: prefixes matching the partial
+    // Plain text – suggest matching anime titles first, then genre:/studio: prefixes
     if (clean.length < 2) return []
     const partial = clean.toLowerCase()
-    const genreHits = allGenres
+
+    const titleHits: SuggestionItem[] = allEntries
+      .filter(
+        (e) =>
+          e.title.romaji.toLowerCase().includes(partial) ||
+          (e.title.english?.toLowerCase().includes(partial) ?? false)
+      )
+      .slice(0, 3)
+      .map((e) => ({ label: e.title.romaji, isTitle: true }))
+
+    const genreHits: SuggestionItem[] = allGenres
       .filter((g) => g.toLowerCase().startsWith(partial))
       .slice(0, 2)
       .map((g) => ({
         label: `genre:${g}`,
         tag: { type: 'genre' as const, value: g, negate: false } satisfies CommittedTag,
       }))
-    const studioHits = allStudios
+
+    const studioHits: SuggestionItem[] = allStudios
       .filter((s) => s.toLowerCase().startsWith(partial))
       .slice(0, 2)
       .map((s) => ({
         label: `studio:${s}`,
         tag: { type: 'studio' as const, value: s, negate: false } satisfies CommittedTag,
       }))
-    return [...genreHits, ...studioHits].slice(0, 3)
-  }, [debouncedInput, allGenres, allStudios])
+
+    return [...titleHits, ...genreHits, ...studioHits].slice(0, 3)
+  }, [debouncedInput, allGenres, allStudios, allEntries])
 
   const showSuggestions = focused && suggestions.length > 0
 
@@ -200,6 +215,7 @@ function SmartSearch({ value, onChange, allEntries }: SmartSearchProps) {
       setCommitted((prev) => {
         const next = [...prev, tag]
         const full = buildFullValue(next, inputAfter)
+        lastEmittedRef.current = full
         onChange(full)
         return next
       })
@@ -212,7 +228,9 @@ function SmartSearch({ value, onChange, allEntries }: SmartSearchProps) {
     (idx: number) => {
       setCommitted((prev) => {
         const next = prev.filter((_, i) => i !== idx)
-        onChange(buildFullValue(next, inputText))
+        const full = buildFullValue(next, inputText)
+        lastEmittedRef.current = full
+        onChange(full)
         return next
       })
     },
@@ -222,7 +240,7 @@ function SmartSearch({ value, onChange, allEntries }: SmartSearchProps) {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value
 
-    // Detect: user just typed a space after a complete tag token
+    // Detect: user just typed a space after a complete tag token → commit it
     if (val.endsWith(' ')) {
       const words = val.trimEnd().split(/\s+/)
       const lastWord = words[words.length - 1] ?? ''
@@ -242,7 +260,9 @@ function SmartSearch({ value, onChange, allEntries }: SmartSearchProps) {
     }
 
     setInputText(val)
-    onChange(buildFullValue(committed, val))
+    const full = buildFullValue(committed, val)
+    lastEmittedRef.current = full
+    onChange(full)
   }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -253,22 +273,34 @@ function SmartSearch({ value, onChange, allEntries }: SmartSearchProps) {
       const next = committed.slice(0, -1)
       setCommitted(next)
       setInputText(textForm)
-      onChange(buildFullValue(next, textForm))
+      const full = buildFullValue(next, textForm)
+      lastEmittedRef.current = full
+      onChange(full)
     }
   }
 
-  const applySuggestion = (suggestion: { label: string; tag?: CommittedTag }) => {
+  const applySuggestion = (suggestion: SuggestionItem) => {
+    const words = inputText.trimEnd().split(/\s+/).filter(Boolean)
+    const restWords = words.slice(0, -1)
+
     if (suggestion.tag) {
-      // Remove the partial from inputText that triggered this suggestion
-      const words = inputText.trimEnd().split(/\s+/)
-      const rest = words.slice(0, -1).join(' ')
-      commitTag(suggestion.tag, rest)
+      // Commit the selected tag and remove the partial word
+      commitTag(suggestion.tag, restWords.join(' '))
+    } else if (suggestion.isTitle) {
+      // Replace the partial word with the full title for a title search
+      const newInput = restWords.length > 0 ? `${restWords.join(' ')} ${suggestion.label}` : suggestion.label
+      setInputText(newInput)
+      const full = buildFullValue(committed, newInput)
+      lastEmittedRef.current = full
+      onChange(full)
+      requestAnimationFrame(() => inputRef.current?.focus())
     } else {
-      // Just a prefix like "genre:" or "-studio:" – put in input
-      const words = inputText.trimEnd().split(/\s+/)
-      const rest = [...words.slice(0, -1), suggestion.label].join(' ')
+      // Prefix suggestion like "genre:" – place in input for further typing
+      const rest = [...restWords, suggestion.label].join(' ')
       setInputText(rest)
-      onChange(buildFullValue(committed, rest))
+      const full = buildFullValue(committed, rest)
+      lastEmittedRef.current = full
+      onChange(full)
       requestAnimationFrame(() => inputRef.current?.focus())
     }
   }
@@ -276,6 +308,7 @@ function SmartSearch({ value, onChange, allEntries }: SmartSearchProps) {
   const clearAll = () => {
     setCommitted([])
     setInputText('')
+    lastEmittedRef.current = ''
     onChange('')
   }
 
@@ -338,10 +371,26 @@ function SmartSearch({ value, onChange, allEntries }: SmartSearchProps) {
       {showSuggestions && (
         <div className="absolute top-full mt-1 left-0 right-0 z-50 bg-kakera-primary-800 border border-kakera-primary-600 rounded-lg shadow-xl overflow-hidden">
           {suggestions.map((s) => {
+            if (s.isTitle) {
+              return (
+                <button
+                  key={s.label}
+                  type="button"
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => applySuggestion(s)}
+                  className="w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-kakera-primary-700 transition-colors"
+                >
+                  <span className="shrink-0 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-kakera-primary-700 text-kakera-muted">
+                    title
+                  </span>
+                  <span className="text-kakera-primary-200 truncate">{s.label}</span>
+                </button>
+              )
+            }
             const colonIdx = s.label.indexOf(':')
-            const isTag = colonIdx > 0
-            const prefix = isTag ? s.label.slice(0, colonIdx + 1) : ''
-            const rest = isTag ? s.label.slice(colonIdx + 1) : s.label
+            const isTagSuggestion = colonIdx > 0
+            const prefix = isTagSuggestion ? s.label.slice(0, colonIdx + 1) : ''
+            const rest = isTagSuggestion ? s.label.slice(colonIdx + 1) : s.label
             return (
               <button
                 key={s.label}
@@ -350,7 +399,7 @@ function SmartSearch({ value, onChange, allEntries }: SmartSearchProps) {
                 onClick={() => applySuggestion(s)}
                 className="w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-kakera-primary-700 transition-colors"
               >
-                {isTag && (
+                {isTagSuggestion && (
                   <span className={`shrink-0 px-1.5 py-0.5 rounded text-[10px] font-semibold
                     ${s.label.startsWith('-') ? 'bg-red-500/20 text-red-300' : 'bg-kakera-accent/20 text-kakera-accent-light'}`}>
                     {prefix}

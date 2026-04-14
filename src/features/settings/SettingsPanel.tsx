@@ -100,12 +100,12 @@ export function SettingsPanel() {
           </div>
           <div>
             <p className="text-sm font-medium text-kakera-primary-300 mb-2">Color Scheme</p>
-            <div className="grid grid-cols-3 gap-2" role="group" aria-label="Color scheme selection">
+            <div className="flex flex-wrap gap-2" role="group" aria-label="Color scheme selection">
               {THEME_PRESETS.map((p) => (
                 <Tooltip key={p.value} content={`Apply the ${p.label} colour scheme`}>
                   <button
                     onClick={() => handlePresetChange(p.value)}
-                    className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium border transition-colors
+                    className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium border transition-colors whitespace-nowrap
                       focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kakera-accent
                       ${settings.themePreset === p.value
                         ? 'bg-kakera-accent text-white border-kakera-accent'
