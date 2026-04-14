@@ -35,19 +35,10 @@ export function CollectionDetail({ collectionId, onBack }: CollectionDetailProps
   const [addSearch, setAddSearch] = useState('')
 
   const collection = collections.find((c) => c.id === collectionId)
-  if (!collection) return <p className="text-kakera-muted">Collection not found.</p>
-
-  const animeEntries = entries.filter((e) => collection.animeIds.includes(e.id))
-
-  const handleDelete = () => {
-    if (window.confirm(`Delete "${collection.name}"?`)) {
-      deleteCollection(collectionId)
-      onBack()
-    }
-  }
 
   // ── Quick-add dialog helpers ──────────────────────────────────────────────
   const filteredAddEntries = useMemo(() => {
+    if (!collection) return []
     const q = addSearch.toLowerCase().trim()
     if (!q) return []
     return entries
@@ -58,7 +49,18 @@ export function CollectionDetail({ collectionId, onBack }: CollectionDetailProps
             (e.title.english?.toLowerCase().includes(q) ?? false))
       )
       .slice(0, 8)
-  }, [addSearch, entries, collection.animeIds])
+  }, [addSearch, entries, collection])
+
+  if (!collection) return <p className="text-kakera-muted">Collection not found.</p>
+
+  const animeEntries = entries.filter((e) => collection.animeIds.includes(e.id))
+
+  const handleDelete = () => {
+    if (window.confirm(`Delete "${collection.name}"?`)) {
+      deleteCollection(collectionId)
+      onBack()
+    }
+  }
 
   return (
     <div className="flex flex-col gap-4">

@@ -243,7 +243,7 @@ export function SettingsPanel() {
               </p>
             )}
             <p className="text-xs text-kakera-muted mb-3">
-              Connect via OAuth — no token needed. You'll be redirected to AniList to authorize.
+              Connect via OAuth — no token needed. You&apos;ll be redirected to AniList to authorize.
             </p>
             <div className="flex gap-2 flex-wrap">
               {!settings.services.anilist.enabled ? (
@@ -330,7 +330,7 @@ export function SettingsPanel() {
               </p>
             )}
             <p className="text-xs text-kakera-muted mb-3">
-              Connect via OAuth — no token needed. You'll be redirected to MyAnimeList to authorize.
+              Connect via OAuth — no token needed. You&apos;ll be redirected to MyAnimeList to authorize.
             </p>
             <div className="flex gap-2 flex-wrap">
               {!settings.services.myanimelist.enabled ? (

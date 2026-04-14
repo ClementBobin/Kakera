@@ -26,7 +26,7 @@ function formatYearRange(startYear: number | null, endYear: number | null): stri
   return `${startYear} – ${endYear}`
 }
 
-export function RelationsTimeline({ relations, currentAnimeId: _currentAnimeId, libraryIds, onSelect }: RelationsTimelineProps) {
+export function RelationsTimeline({ relations, libraryIds, onSelect }: RelationsTimelineProps) {
   if (relations.length === 0) return null
 
   return (
