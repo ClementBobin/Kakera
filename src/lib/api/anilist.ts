@@ -304,10 +304,10 @@ export class AniListClient {
   async getViewerLibrary(): Promise<AnimeEntry[]> {
     // 1. Get the current user's ID
     const viewerData = await this.query<{ Viewer: { id: number } }>(
-      `query { Viewer { id } }`, 
+      `query { Viewer { id } }`,
       {}
     );
-    
+
     const userId = viewerData.Viewer.id;
 
     // 2. Use that ID to get the library
