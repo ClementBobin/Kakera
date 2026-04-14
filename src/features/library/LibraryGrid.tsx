@@ -2,17 +2,20 @@ import { useRef } from 'react'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { useSettingsStore } from '@/stores/settingsStore'
 import { useFilteredEntries } from '@/stores/libraryStore'
+import { useCollectionsStore } from '@/stores/collectionsStore'
 import { AnimeCard } from '@/features/library/AnimeCard'
 import { Skeleton } from '@/components/ui/Skeleton'
 
 export interface LibraryGridProps {
   isLoading?: boolean
   collectionAnimeIds?: string[]
+  collectionId?: string
 }
 
-export function LibraryGrid({ isLoading = false, collectionAnimeIds }: LibraryGridProps) {
+export function LibraryGrid({ isLoading = false, collectionAnimeIds, collectionId }: LibraryGridProps) {
   const entries = useFilteredEntries(collectionAnimeIds)
   const settings = useSettingsStore((s) => s.settings)
+  const removeAnimeFromCollection = useCollectionsStore((s) => s.removeAnimeFromCollection)
   const displayMode = settings.displayMode
   const gridSize = settings.gridSize
   const gridSizeAuto = settings.gridSizeAuto
@@ -56,12 +59,15 @@ export function LibraryGrid({ isLoading = false, collectionAnimeIds }: LibraryGr
           {rowVirtualizer.getVirtualItems().map((virtualRow) => {
             const entry = entries[virtualRow.index]
             if (!entry) return null
+            const onRemove = collectionId
+              ? () => removeAnimeFromCollection(collectionId, entry.id)
+              : undefined
             return (
               <div
                 key={virtualRow.key}
                 style={{ position: 'absolute', top: 0, left: 0, width: '100%', transform: `translateY(${virtualRow.start}px)` }}
               >
-                <AnimeCard entry={entry} displayMode={displayMode} />
+                <AnimeCard entry={entry} displayMode={displayMode} onRemove={onRemove} />
               </div>
             )
           })}
@@ -75,9 +81,14 @@ export function LibraryGrid({ isLoading = false, collectionAnimeIds }: LibraryGr
       className="grid gap-3"
       style={{ gridTemplateColumns: gridSizeAuto ? 'repeat(auto-fill, minmax(160px, 1fr))' : `repeat(${gridSize}, minmax(0, 1fr))` }}
     >
-      {entries.map((entry) => (
-        <AnimeCard key={entry.id} entry={entry} displayMode={displayMode} />
-      ))}
+      {entries.map((entry) => {
+        const onRemove = collectionId
+          ? () => removeAnimeFromCollection(collectionId, entry.id)
+          : undefined
+        return (
+          <AnimeCard key={entry.id} entry={entry} displayMode={displayMode} onRemove={onRemove} />
+        )
+      })}
     </div>
   )
 }

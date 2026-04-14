@@ -155,11 +155,6 @@ export function AnimeCard({ entry, displayMode, onRemove }: AnimeCardProps) {
               <Badge variant="success">DL</Badge>
             )}
           </div>
-          {overlay.showLocalSource && entry.localPath && (
-            <div className="absolute top-1.5 right-1.5">
-              <Badge variant="warning">Local</Badge>
-            </div>
-          )}
           {/* Hover overlay */}
           <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2 p-2">
             {overlay.showResumeButton && entry.progress > 0 && (

@@ -15,7 +15,6 @@ export type VideoQuality = '360p' | '720p' | '1080p' | 'best'
 export interface OverlaySettings {
   showDownloadedCount: boolean
   showUnwatchedCount: boolean
-  showLocalSource: boolean
   showResumeButton: boolean
 }
 

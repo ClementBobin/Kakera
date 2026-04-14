@@ -67,7 +67,6 @@ export function SettingsPanel() {
   const OVERLAY_TOOLTIPS: Record<string, string> = {
     showDownloadedCount: 'Show a "DL" badge on downloaded anime',
     showUnwatchedCount: 'Show how many unwatched episodes are available',
-    showLocalSource: 'Show a "Local" badge when the anime has a local file path',
     showResumeButton: 'Show the "Resume" button in the hover overlay',
   }
 

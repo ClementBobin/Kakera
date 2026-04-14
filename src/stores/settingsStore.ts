@@ -10,7 +10,6 @@ const DEFAULT_SETTINGS: AppSettings = {
   overlay: {
     showDownloadedCount: true,
     showUnwatchedCount: true,
-    showLocalSource: true,
     showResumeButton: true,
   },
   tabs: {

@@ -20,7 +20,6 @@ describe('AnimeCard', () => {
         overlay: {
           showDownloadedCount: true,
           showUnwatchedCount: true,
-          showLocalSource: true,
           showResumeButton: true,
         },
       },
@@ -47,7 +46,6 @@ describe('AnimeCard', () => {
         overlay: {
           showDownloadedCount: false,
           showUnwatchedCount: false,
-          showLocalSource: false,
           showResumeButton: false,
         },
       },

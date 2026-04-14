@@ -9,7 +9,6 @@ export const MOCK_SETTINGS: AppSettings = {
   overlay: {
     showDownloadedCount: true,
     showUnwatchedCount: true,
-    showLocalSource: true,
     showResumeButton: true,
   },
   tabs: {

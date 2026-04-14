@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { LibraryFilters } from '@/features/library/LibraryFilters'
 import { LibraryGrid } from '@/features/library/LibraryGrid'
 import { LibraryToolbar } from '@/features/library/LibraryToolbar'
@@ -6,8 +6,11 @@ import { CollectionEditor } from '@/features/collections/CollectionEditor'
 import { useLibraryQuery } from '@/hooks/useLibrary'
 import { useCollectionsStore } from '@/stores/collectionsStore'
 import { useLibraryStore } from '@/stores/libraryStore'
+import { Button } from '@/components/ui/Button'
+import { Input } from '@/components/ui/Input'
+import { Dialog } from '@/components/ui/Dialog'
 import { Tooltip } from '@/components/ui/Tooltip'
-import { Plus, Library } from 'lucide-react'
+import { Plus, Library, Pencil, Trash2 } from 'lucide-react'
 import * as LucideIcons from 'lucide-react'
 
 function CollectionIcon({ icon, size = 14 }: { icon: string; size?: number }) {
@@ -94,9 +97,39 @@ function CollectionSidebar() {
 
 function LibraryContent({ isLoading }: { isLoading: boolean }) {
   const selectedCollectionId = useLibraryStore((s) => s.selectedCollectionId)
+  const setSelectedCollectionId = useLibraryStore((s) => s.setSelectedCollectionId)
   const collections = useCollectionsStore((s) => s.collections)
+  const deleteCollection = useCollectionsStore((s) => s.deleteCollection)
+  const addAnimeToCollection = useCollectionsStore((s) => s.addAnimeToCollection)
+  const entries = useLibraryStore((s) => s.entries)
   const activeCollection = collections.find((c) => c.id === selectedCollectionId) ?? null
   const collectionAnimeIds = activeCollection?.animeIds
+
+  const [editorOpen, setEditorOpen] = useState(false)
+  const [addDialogOpen, setAddDialogOpen] = useState(false)
+  const [addSearch, setAddSearch] = useState('')
+
+  const handleDelete = () => {
+    if (!activeCollection) return
+    if (window.confirm(`Delete "${activeCollection.name}"?`)) {
+      deleteCollection(activeCollection.id)
+      setSelectedCollectionId(null)
+    }
+  }
+
+  const filteredAddEntries = useMemo(() => {
+    if (!activeCollection) return []
+    const q = addSearch.toLowerCase().trim()
+    if (!q) return []
+    return entries
+      .filter(
+        (e) =>
+          !activeCollection.animeIds.includes(e.id) &&
+          (e.title.romaji.toLowerCase().includes(q) ||
+            (e.title.english?.toLowerCase().includes(q) ?? false))
+      )
+      .slice(0, 8)
+  }, [addSearch, entries, activeCollection])
 
   return (
     <div className="flex flex-col gap-4 flex-1 min-w-0">
@@ -105,15 +138,92 @@ function LibraryContent({ isLoading }: { isLoading: boolean }) {
           <span style={{ color: activeCollection.color }}>
             <CollectionIcon icon={activeCollection.icon} size={18} />
           </span>
-          <h2 className="text-base font-semibold text-kakera-primary-100">{activeCollection.name}</h2>
+          <h2 className="text-base font-semibold text-kakera-primary-100 flex-1">{activeCollection.name}</h2>
           {activeCollection.description && (
-            <span className="text-sm text-kakera-muted">— {activeCollection.description}</span>
+            <span className="text-sm text-kakera-muted mr-auto">— {activeCollection.description}</span>
           )}
+          <Tooltip content="Edit collection">
+            <button
+              onClick={() => setEditorOpen(true)}
+              className="p-1.5 rounded-lg text-kakera-muted hover:text-kakera-primary-100 hover:bg-kakera-primary-700
+                focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kakera-accent transition-colors"
+              aria-label="Edit collection"
+            >
+              <Pencil size={14} />
+            </button>
+          </Tooltip>
+          <Tooltip content="Delete collection">
+            <button
+              onClick={handleDelete}
+              className="p-1.5 rounded-lg text-kakera-muted hover:text-red-400 hover:bg-red-500/10
+                focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 transition-colors"
+              aria-label="Delete collection"
+            >
+              <Trash2 size={14} />
+            </button>
+          </Tooltip>
         </div>
       )}
       <LibraryToolbar />
       <LibraryFilters collectionAnimeIds={collectionAnimeIds} />
-      <LibraryGrid isLoading={isLoading} collectionAnimeIds={collectionAnimeIds} />
+      <LibraryGrid isLoading={isLoading} collectionAnimeIds={collectionAnimeIds} collectionId={activeCollection?.id} />
+
+      {/* Full-width + Add Anime button for collections */}
+      {activeCollection && (
+        <button
+          onClick={() => { setAddSearch(''); setAddDialogOpen(true) }}
+          className="w-full flex items-center justify-center gap-2 py-3 rounded-xl
+            border-2 border-dashed border-kakera-primary-600 text-kakera-muted
+            hover:border-kakera-accent hover:text-kakera-accent transition-colors
+            focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kakera-accent"
+          aria-label="Add anime to collection"
+        >
+          <Plus size={18} />
+          <span className="text-sm font-medium">Add Anime</span>
+        </button>
+      )}
+
+      {/* Quick-add dialog */}
+      <Dialog open={addDialogOpen} onClose={() => setAddDialogOpen(false)} title="Add Anime">
+        <div className="flex flex-col gap-3">
+          <Input
+            placeholder="Search anime…"
+            value={addSearch}
+            onChange={(e) => setAddSearch(e.target.value)}
+            autoFocus
+          />
+          <div className="flex flex-col gap-0.5 min-h-16 max-h-60 overflow-y-auto">
+            {filteredAddEntries.map((e) => (
+              <button
+                key={e.id}
+                onClick={() => {
+                  if (activeCollection) addAnimeToCollection(activeCollection.id, e.id)
+                  setAddSearch('')
+                  setAddDialogOpen(false)
+                }}
+                className="flex items-center gap-2 px-2 py-1.5 rounded text-sm text-left hover:bg-kakera-primary-700
+                  focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kakera-accent"
+              >
+                <img src={e.coverImage} alt="" className="w-7 h-10 object-cover rounded shrink-0" loading="lazy" />
+                <span className="text-kakera-primary-200 truncate">{e.title.romaji}</span>
+              </button>
+            ))}
+            {addSearch.trim().length > 0 && filteredAddEntries.length === 0 && (
+              <p className="text-kakera-muted text-sm px-2 py-2">No matching anime found.</p>
+            )}
+            {addSearch.trim().length === 0 && (
+              <p className="text-kakera-muted text-xs px-2 py-2">Start typing to search…</p>
+            )}
+          </div>
+          <div className="flex justify-end">
+            <Button variant="ghost" onClick={() => setAddDialogOpen(false)}>Close</Button>
+          </div>
+        </div>
+      </Dialog>
+
+      {activeCollection && (
+        <CollectionEditor open={editorOpen} onClose={() => setEditorOpen(false)} collection={activeCollection} />
+      )}
     </div>
   )
 }
