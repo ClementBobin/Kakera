@@ -8,6 +8,7 @@ export interface AnimeEntry {
   id: string
   serviceId: Record<TrackingService, string | null>
   title: { romaji: string; english: string | null; native: string }
+  description: string | null
   coverImage: string
   bannerImage: string | null
   status: WatchStatus

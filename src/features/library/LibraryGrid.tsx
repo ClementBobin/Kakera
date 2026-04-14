@@ -7,10 +7,11 @@ import { Skeleton } from '@/components/ui/Skeleton'
 
 export interface LibraryGridProps {
   isLoading?: boolean
+  collectionAnimeIds?: string[]
 }
 
-export function LibraryGrid({ isLoading = false }: LibraryGridProps) {
-  const entries = useFilteredEntries()
+export function LibraryGrid({ isLoading = false, collectionAnimeIds }: LibraryGridProps) {
+  const entries = useFilteredEntries(collectionAnimeIds)
   const settings = useSettingsStore((s) => s.settings)
   const displayMode = settings.displayMode
   const gridSize = settings.gridSize

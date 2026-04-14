@@ -3,20 +3,19 @@ import { SettingsPanel } from '@/features/settings/SettingsPanel'
 import { AnimeDetail } from '@/features/library/AnimeDetail'
 import { useUiStore } from '@/stores/uiStore'
 import { Dialog } from '@/components/ui/Dialog'
-import { Library, Calendar, Layers, Settings, RefreshCw } from 'lucide-react'
+import { Library, Calendar, Settings, RefreshCw } from 'lucide-react'
 import { useLibraryStore } from '@/stores/libraryStore'
 import { Tooltip } from '@/components/ui/Tooltip'
 
 export interface AppLayoutProps {
-  currentPage: 'library' | 'calendar' | 'collections'
-  onNavigate: (page: 'library' | 'calendar' | 'collections') => void
+  currentPage: 'library' | 'calendar'
+  onNavigate: (page: 'library' | 'calendar') => void
   children: React.ReactNode
 }
 
 const NAV_ITEMS = [
   { page: 'library' as const, label: 'Library', Icon: Library },
   { page: 'calendar' as const, label: 'Calendar', Icon: Calendar },
-  { page: 'collections' as const, label: 'Collections', Icon: Layers },
 ]
 
 export function AppLayout({ currentPage, onNavigate, children }: AppLayoutProps) {

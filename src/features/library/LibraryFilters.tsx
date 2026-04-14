@@ -28,11 +28,15 @@ const SORT_OPTIONS: { value: SortStrategy; label: string }[] = [
   { value: 'random', label: 'Random' },
 ]
 
-export function LibraryFilters() {
+export interface LibraryFiltersProps {
+  collectionAnimeIds?: string[]
+}
+
+export function LibraryFilters({ collectionAnimeIds }: LibraryFiltersProps) {
   const filters = useLibraryStore((s) => s.filters)
   const setFilter = useLibraryStore((s) => s.setFilter)
   const showCategoryTabs = useSettingsStore((s) => s.settings.tabs.showCategoryTabs)
-  const filteredEntries = useFilteredEntries()
+  const filteredEntries = useFilteredEntries(collectionAnimeIds)
 
   const handleSearch = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {

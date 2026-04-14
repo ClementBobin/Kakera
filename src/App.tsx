@@ -5,7 +5,6 @@ import { applyTheme } from '@/lib/theme'
 import { useSettingsStore } from '@/stores/settingsStore'
 import LibraryPage from '@/pages/LibraryPage'
 import CalendarPage from '@/pages/CalendarPage'
-import CollectionsPage from '@/pages/CollectionsPage'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -17,7 +16,7 @@ const queryClient = new QueryClient({
 })
 
 function AppInner() {
-  const [currentPage, setCurrentPage] = useState<'library' | 'calendar' | 'collections'>('library')
+  const [currentPage, setCurrentPage] = useState<'library' | 'calendar'>('library')
   const settings = useSettingsStore((s) => s.settings)
 
   useEffect(() => {
@@ -28,7 +27,6 @@ function AppInner() {
     <AppLayout currentPage={currentPage} onNavigate={setCurrentPage}>
       {currentPage === 'library' && <LibraryPage />}
       {currentPage === 'calendar' && <CalendarPage />}
-      {currentPage === 'collections' && <CollectionsPage />}
     </AppLayout>
   )
 }

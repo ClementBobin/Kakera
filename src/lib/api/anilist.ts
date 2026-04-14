@@ -257,6 +257,7 @@ function mediaToEntry(media: AniListMedia, listEntry?: AniListListEntry): AnimeE
     seasonYear: media.seasonYear,
     format: mapFormat(media.format),
     source: 'anilist',
+    description: null,
     localPath: null,
     language: null,
     relations: media.relations.edges.map((e) => ({
