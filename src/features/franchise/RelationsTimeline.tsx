@@ -67,7 +67,6 @@ export function RelationsTimeline({ relations, currentAnimeId: _currentAnimeId, 
 
         // Not in library — show external links
         const anilistUrl = `https://anilist.co/anime/${rel.id}`
-        const malId = rel.id // MAL ids differ but we only have AniList id here
         return (
           <div
             key={rel.id}

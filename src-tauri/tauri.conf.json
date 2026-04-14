@@ -1,7 +1,7 @@
 {
   "productName": "Kakera",
   "version": "0.1.0",
-  "identifier": "dev.kakera.app",
+  "identifier": "dev.kakera",
   "build": {
     "beforeDevCommand": "pnpm dev",
     "beforeBuildCommand": "pnpm build",
