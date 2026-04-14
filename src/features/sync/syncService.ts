@@ -1,51 +1,131 @@
 import type { AnimeEntry } from '@/types/anime'
+import type { AppSettings } from '@/types/settings'
+import type { CustomCollection } from '@/types/collection'
+import { mergeEntries, type MergeResult } from '@/lib/merge'
+import { savePersistedState } from '@/lib/persistence'
 
-// LibraryStore action subset used in sync
-interface LibraryStore {
-  setEntries: (entries: AnimeEntry[]) => void
+export type SyncService = 'anilist' | 'myanimelist'
+
+export interface SyncProgress {
+  phase: 'connecting' | 'fetching' | 'merging' | 'saving' | 'done' | 'error'
+  service: SyncService
+  /** 0–100 */
+  percent: number
+  message: string
+  error?: string
 }
 
-export async function syncFromAniList(token: string, store: LibraryStore): Promise<void> {
-  const { AniListClient } = await import('@/lib/api/anilist')
-  const client = new AniListClient(token)
-  const entries = await client.getViewerLibrary()
-  const existing = [] as AnimeEntry[] // would come from store in real impl
-  const merged = await mergeEntries(existing, entries)
-  store.setEntries(merged)
+export type SyncProgressCallback = (progress: SyncProgress) => void
+
+export interface SyncOptions {
+  service: SyncService
+  settings: AppSettings
+  existingEntries: AnimeEntry[]
+  collections: CustomCollection[]
+  lastSyncedAt: string | null
+  onProgress?: SyncProgressCallback
 }
 
-export async function syncFromMAL(token: string, store: LibraryStore): Promise<void> {
-  const { MyAnimeListClient } = await import('@/lib/api/myanimelist')
-  const client = new MyAnimeListClient(token)
-  const entries = await client.getUserLibrary()
-  const existing = [] as AnimeEntry[]
-  const merged = await mergeEntries(existing, entries)
-  store.setEntries(merged)
+export interface SyncResult extends MergeResult {
+  service: SyncService
+  syncedAt: string
 }
 
-export async function mergeEntries(
-  existing: AnimeEntry[],
-  incoming: AnimeEntry[]
-): Promise<AnimeEntry[]> {
-  const existingMap = new Map(existing.map((e) => [e.id, e]))
-  const result: AnimeEntry[] = []
+function emit(
+  cb: SyncProgressCallback | undefined,
+  progress: SyncProgress
+): void {
+  cb?.(progress)
+}
 
-  for (const entry of incoming) {
-    const prev = existingMap.get(entry.id)
-    result.push({
-      ...entry,
-      // Local fields win
-      downloadedEpisodes: prev?.downloadedEpisodes ?? entry.downloadedEpisodes,
-      localPath: prev?.localPath ?? entry.localPath,
-      isDownloaded: prev?.isDownloaded ?? entry.isDownloaded,
+export async function syncLibrary(opts: SyncOptions): Promise<SyncResult> {
+  const { service, settings, existingEntries, collections, onProgress } = opts
+
+  emit(onProgress, {
+    phase: 'connecting',
+    service,
+    percent: 5,
+    message: `Connecting to ${service === 'anilist' ? 'AniList' : 'MyAnimeList'}…`,
+  })
+
+  const serviceConfig = settings.services[service]
+  if (!serviceConfig.enabled || !serviceConfig.token) {
+    throw new Error(
+      `${service} is not connected. Please add your API token in Settings → Services.`
+    )
+  }
+
+  let incoming: AnimeEntry[]
+
+  emit(onProgress, {
+    phase: 'fetching',
+    service,
+    percent: 20,
+    message: 'Fetching your anime list…',
+  })
+
+  try {
+    if (service === 'anilist') {
+      const { AniListClient } = await import('@/lib/api/anilist')
+      const client = new AniListClient(serviceConfig.token)
+      incoming = await client.getViewerLibrary()
+    } else {
+      const { MyAnimeListClient } = await import('@/lib/api/myanimelist')
+      const client = new MyAnimeListClient(serviceConfig.token)
+      incoming = await client.getUserLibrary()
+    }
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err)
+    emit(onProgress, {
+      phase: 'error',
+      service,
+      percent: 0,
+      message: 'Fetch failed',
+      error: message,
     })
-    existingMap.delete(entry.id)
+    throw err
   }
 
-  // Keep remaining local-only entries
-  for (const leftover of existingMap.values()) {
-    result.push(leftover)
+  emit(onProgress, {
+    phase: 'merging',
+    service,
+    percent: 65,
+    message: `Merging ${incoming.length} entries…`,
+  })
+
+  const mergeResult = mergeEntries(existingEntries, incoming)
+
+  emit(onProgress, {
+    phase: 'saving',
+    service,
+    percent: 85,
+    message: 'Saving to disk…',
+  })
+
+  const syncedAt = new Date().toISOString()
+
+  try {
+    await savePersistedState({
+      library: mergeResult.entries,
+      collections,
+      lastSyncedAt: syncedAt,
+      schemaVersion: 1,
+    })
+  } catch (err) {
+    // Non-fatal — in-memory state is still good
+    console.warn('[sync] Failed to persist state to disk:', err)
   }
 
-  return result
+  emit(onProgress, {
+    phase: 'done',
+    service,
+    percent: 100,
+    message: `Synced ${mergeResult.added} new, ${mergeResult.updated} updated`,
+  })
+
+  return { ...mergeResult, service, syncedAt }
 }
+
+// Re-export merge for components that need it directly
+export { mergeEntries } from '@/lib/merge'
+export { syncFromAniList, syncFromMAL } from './syncLegacy'

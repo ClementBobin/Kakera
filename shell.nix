@@ -10,10 +10,8 @@ let
     glib
     dbus
     openssl
-    # Added for rendering stability
-    pango
-    harfbuzz
-    cairo
+    # Networking/TLS essentials
+    glib-networking 
   ];
 in
 pkgs.mkShell {
@@ -23,8 +21,6 @@ pkgs.mkShell {
     nodePackages.pnpm
     rustc
     cargo
-    
-    # UI Essentials
     gsettings-desktop-schemas
     adwaita-icon-theme
   ] ++ libraries;
@@ -32,12 +28,16 @@ pkgs.mkShell {
   shellHook = ''
     export LD_LIBRARY_PATH=${pkgs.lib.makeLibraryPath libraries}:$LD_LIBRARY_PATH
     
-    # Crucial: This allows GTK to find its schemas and icons
+    # --- THIS PART FIXES THE TLS ERROR ---
+    export GIO_EXTRA_MODULES=${pkgs.glib-networking}/lib/gio/modules
+    export GSETTINGS_SCHEMA_DIR=${pkgs.gsettings-desktop-schemas}/share/gsettings-data-convert
+    # --------------------------------------
+
     export XDG_DATA_DIRS=${pkgs.gsettings-desktop-schemas}/share/gsettings-data-convert:${pkgs.gtk3}/share/gsettings-data-convert:${pkgs.adwaita-icon-theme}/share:$XDG_DATA_DIRS
     
-    # Fix for some Nix environments where WebKit fails to init
+    # Optional: ensure webkit uses the right settings
     export WEBKIT_DISABLE_COMPOSITING_MODE=1
     
-    echo "Tauri environment ready. If no window appears, try: GDK_BACKEND=x11 pnpm tauri dev"
+    echo "Tauri environment ready with TLS support."
   '';
 }

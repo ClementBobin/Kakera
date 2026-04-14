@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { applyTheme, watchSystemTheme } from '@/lib/theme'
 import { useSettingsStore } from '@/stores/settingsStore'
+import { useStartup } from '@/hooks/useStartup'
 import LibraryPage from '@/pages/LibraryPage'
 import CalendarPage from '@/pages/CalendarPage'
 
@@ -18,6 +19,9 @@ const queryClient = new QueryClient({
 function AppInner() {
   const [currentPage, setCurrentPage] = useState<'library' | 'calendar'>('library')
   const settings = useSettingsStore((s) => s.settings)
+
+  // Hydrate from disk + kick off background auto-sync on startup
+  useStartup()
 
   useEffect(() => {
     applyTheme(settings.theme, settings.themePreset)

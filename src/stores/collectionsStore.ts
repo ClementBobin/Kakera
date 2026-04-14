@@ -3,6 +3,7 @@ import type { CustomCollection } from '@/types/collection'
 
 interface CollectionsState {
   collections: CustomCollection[]
+  setCollections: (collections: CustomCollection[]) => void
   addCollection: (collection: CustomCollection) => void
   updateCollection: (id: string, updates: Partial<CustomCollection>) => void
   deleteCollection: (id: string) => void
@@ -12,6 +13,7 @@ interface CollectionsState {
 
 export const useCollectionsStore = create<CollectionsState>((set) => ({
   collections: [],
+  setCollections: (collections) => set({ collections }),
   addCollection: (collection) =>
     set((state) => ({ collections: [...state.collections, collection] })),
   updateCollection: (id, updates) =>
