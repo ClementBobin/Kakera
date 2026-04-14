@@ -10,7 +10,6 @@ export const MOCK_SETTINGS: AppSettings = {
     showDownloadedCount: true,
     showUnwatchedCount: true,
     showLocalSource: true,
-    showLanguage: true,
     showResumeButton: true,
   },
   tabs: {

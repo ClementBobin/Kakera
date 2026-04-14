@@ -9,8 +9,9 @@ import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { Input } from '@/components/ui/Input'
+import { Tooltip } from '@/components/ui/Tooltip'
 import { formatEpisodeProgress, formatScore, formatSeason, formatAiringDate } from '@/utils/format'
-import { Download, Play, CheckCircle, Clock, Lock } from 'lucide-react'
+import { Download, Play, CheckCircle, Clock, Lock, List, LayoutGrid, X as XIcon } from 'lucide-react'
 
 // ── Episode row helpers ────────────────────────────────────────────────────────
 
@@ -86,6 +87,7 @@ export function AnimeDetail() {
   const [dlEpStart, setDlEpStart] = useState('')
   const [dlEpEnd, setDlEpEnd] = useState('')
   const [isDownloading, setIsDownloading] = useState(false)
+  const [episodeView, setEpisodeView] = useState<'list' | 'grid'>('list')
 
   if (!isDetailOpen) return null
 
@@ -183,7 +185,7 @@ export function AnimeDetail() {
             focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kakera-accent"
           aria-label="Close detail panel"
         >
-          ✕
+          <XIcon size={16} />
         </button>
 
         {isLoading || !anime ? (
@@ -388,32 +390,89 @@ export function AnimeDetail() {
                 )}
               </div>
 
-              {/* Episode list */}
+              {/* Episode list/grid */}
               {episodes.length > 0 && (
                 <div>
-                  <h3 className="text-sm font-semibold text-white mb-2">Episodes</h3>
-                  <div className="flex flex-col gap-1 max-h-72 overflow-y-auto scrollbar-thin">
-                    {episodes.map((ep) => {
-                      const isWatched = ep <= anime.progress
-                      const isDownloaded = anime.downloadedEpisodes.includes(ep)
-                      const isFuture = isEpisodeFuture(ep)
-                      const futureAirDate = (isFuture && anime.nextEpisodeNumber === ep) ? (anime.nextEpisodeAt ?? undefined) : undefined
-                      const watchedDate = (isWatched && ep === anime.progress) ? anime.lastWatched : null
-
-                      return (
-                        <EpisodeRow
-                          key={ep}
-                          episodeNumber={ep}
-                          isWatched={isWatched}
-                          isDownloaded={isDownloaded}
-                          isFuture={isFuture}
-                          futureAirDate={futureAirDate}
-                          lastWatchedDate={watchedDate}
-                          onPlay={(e) => void handlePlay(e)}
-                        />
-                      )
-                    })}
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-sm font-semibold text-white">Episodes</h3>
+                    <div className="flex gap-1">
+                      <Tooltip content="List view">
+                        <button
+                          onClick={() => setEpisodeView('list')}
+                          className={`w-7 h-7 flex items-center justify-center rounded transition-colors
+                            focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kakera-accent
+                            ${episodeView === 'list' ? 'bg-kakera-accent text-white' : 'text-kakera-primary-400 hover:bg-kakera-primary-700'}`}
+                          aria-pressed={episodeView === 'list'}
+                          aria-label="Episode list view"
+                        >
+                          <List size={13} />
+                        </button>
+                      </Tooltip>
+                      <Tooltip content="Grid view">
+                        <button
+                          onClick={() => setEpisodeView('grid')}
+                          className={`w-7 h-7 flex items-center justify-center rounded transition-colors
+                            focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kakera-accent
+                            ${episodeView === 'grid' ? 'bg-kakera-accent text-white' : 'text-kakera-primary-400 hover:bg-kakera-primary-700'}`}
+                          aria-pressed={episodeView === 'grid'}
+                          aria-label="Episode grid view"
+                        >
+                          <LayoutGrid size={13} />
+                        </button>
+                      </Tooltip>
+                    </div>
                   </div>
+
+                  {episodeView === 'list' ? (
+                    <div className="flex flex-col gap-1 max-h-72 overflow-y-auto scrollbar-thin">
+                      {episodes.map((ep) => {
+                        const isWatched = ep <= anime.progress
+                        const isDownloaded = anime.downloadedEpisodes.includes(ep)
+                        const isFuture = isEpisodeFuture(ep)
+                        const futureAirDate = (isFuture && anime.nextEpisodeNumber === ep) ? (anime.nextEpisodeAt ?? undefined) : undefined
+                        const watchedDate = (isWatched && ep === anime.progress) ? anime.lastWatched : null
+
+                        return (
+                          <EpisodeRow
+                            key={ep}
+                            episodeNumber={ep}
+                            isWatched={isWatched}
+                            isDownloaded={isDownloaded}
+                            isFuture={isFuture}
+                            futureAirDate={futureAirDate}
+                            lastWatchedDate={watchedDate}
+                            onPlay={(e) => void handlePlay(e)}
+                          />
+                        )
+                      })}
+                    </div>
+                  ) : (
+                    /* Grid view — compact numbered buttons */
+                    <div className="grid grid-cols-6 gap-1 max-h-72 overflow-y-auto scrollbar-thin">
+                      {episodes.map((ep) => {
+                        const isWatched = ep <= anime.progress
+                        const isDownloaded = anime.downloadedEpisodes.includes(ep)
+                        const isFuture = isEpisodeFuture(ep)
+                        let cls = 'w-full aspect-square flex items-center justify-center rounded text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-kakera-accent'
+                        if (isFuture) cls += ' bg-kakera-primary-900 text-kakera-primary-600 cursor-default opacity-50'
+                        else if (isWatched) cls += ' bg-kakera-primary-700 text-kakera-primary-400 cursor-pointer hover:bg-kakera-primary-600'
+                        else cls += ' bg-kakera-accent/20 text-kakera-accent-light cursor-pointer hover:bg-kakera-accent/40'
+                        if (isDownloaded && !isFuture) cls += ' ring-1 ring-green-500'
+                        return (
+                          <Tooltip key={ep} content={`Episode ${ep}${isWatched ? ' ✓' : ''}${isDownloaded ? ' · DL' : ''}`}>
+                            <button
+                              className={cls}
+                              onClick={isFuture ? undefined : () => void handlePlay(ep)}
+                              aria-label={`Episode ${ep}`}
+                              disabled={isFuture}
+                            >
+                              {ep}
+                            </button>
+                          </Tooltip>
+                        )
+                      })}
+                    </div>
+                  )}
                 </div>
               )}
 

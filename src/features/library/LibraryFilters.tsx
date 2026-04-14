@@ -1,12 +1,11 @@
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useLibraryStore, useFilteredEntries } from '@/stores/libraryStore'
 import { useSettingsStore } from '@/stores/settingsStore'
-import { parseSearchTokens } from '@/utils/filter'
 import { Select } from '@/components/ui/Select'
-import { Badge } from '@/components/ui/Badge'
 import { Tooltip } from '@/components/ui/Tooltip'
 import { X } from 'lucide-react'
 import type { SortStrategy, FilterValue } from '@/types/filters'
+import type { SearchToken } from '@/utils/filter'
 
 const SORT_OPTIONS: { value: SortStrategy; label: string }[] = [
   { value: 'alphabetical', label: 'A → Z' },
@@ -45,20 +44,86 @@ export interface LibraryFiltersProps {
   collectionAnimeIds?: string[]
 }
 
-// ── Smart search input ────────────────────────────────────────────────────────
+// ── Types ─────────────────────────────────────────────────────────────────────
+
+type CommittedTag = SearchToken & { type: 'genre' | 'studio' }
+
+function serializeCommitted(tags: CommittedTag[]): string {
+  return tags
+    .map((t) => `${t.negate ? '-' : ''}${t.type}:${t.value.replace(/ /g, '_')}`)
+    .join(' ')
+}
+
+function buildFullValue(committed: CommittedTag[], inputText: string): string {
+  const parts = [
+    serializeCommitted(committed),
+    inputText.trim(),
+  ].filter(Boolean)
+  return parts.join(' ')
+}
+
+/** Parse a raw search string: all complete tag tokens → committed badges, rest → inputText */
+function parseIntoCommitted(raw: string): { committed: CommittedTag[]; inputText: string } {
+  if (!raw.trim()) return { committed: [], inputText: '' }
+
+  const committed: CommittedTag[] = []
+  const titleParts: string[] = []
+
+  const parts = raw.trim().split(/\s+/)
+
+  for (const part of parts) {
+    const negate = part.startsWith('-')
+    const clean = negate ? part.slice(1) : part
+    const colonIdx = clean.indexOf(':')
+
+    if (colonIdx > 0) {
+      const type = clean.slice(0, colonIdx).toLowerCase()
+      const val = clean.slice(colonIdx + 1).replace(/_/g, ' ').trim()
+      if (val && (type === 'genre' || type === 'studio')) {
+        committed.push({ type: type as 'genre' | 'studio', value: val, negate })
+        continue
+      }
+    }
+    if (clean) titleParts.push(part)
+  }
+
+  return { committed, inputText: titleParts.join(' ') }
+}
+
+// ── SmartSearch ───────────────────────────────────────────────────────────────
 
 interface SmartSearchProps {
   value: string
   onChange: (v: string) => void
-  entries: ReturnType<typeof useFilteredEntries>
-  allEntries: ReturnType<typeof useFilteredEntries>
+  allEntries: { genres: string[]; studios: string[] }[]
 }
 
 function SmartSearch({ value, onChange, allEntries }: SmartSearchProps) {
+  const [committed, setCommitted] = useState<CommittedTag[]>(() => parseIntoCommitted(value).committed)
+  const [inputText, setInputText] = useState<string>(() => parseIntoCommitted(value).inputText)
   const [focused, setFocused] = useState(false)
+  const [debouncedInput, setDebouncedInput] = useState(inputText)
   const inputRef = useRef<HTMLInputElement>(null)
 
-  // Collect all suggestions
+  // Sync when value changes externally (e.g. from AnimeDetail)
+  const prevValue = useRef(value)
+  useEffect(() => {
+    if (value !== prevValue.current) {
+      prevValue.current = value
+      const { committed: newC, inputText: newI } = parseIntoCommitted(value)
+      setCommitted(newC)
+      setInputText(newI)
+      setDebouncedInput(newI)
+    }
+  }, [value])
+
+  // Debounce input for suggestions
+  useEffect(() => {
+    const id = setTimeout(() => setDebouncedInput(inputText), 180)
+    return () => clearTimeout(id)
+  }, [inputText])
+
+  // Gather suggestion pool
   const { allGenres, allStudios } = useMemo(() => {
     const genres = new Set<string>()
     const studios = new Set<string>()
@@ -69,109 +134,198 @@ function SmartSearch({ value, onChange, allEntries }: SmartSearchProps) {
     return { allGenres: [...genres].sort(), allStudios: [...studios].sort() }
   }, [allEntries])
 
-  // Parse tokens to know current search state
-  const tokens = useMemo(() => parseSearchTokens(value), [value])
-  const titleToken = tokens.find((t) => t.type === 'title')
-  const tagTokens = tokens.filter((t) => t.type !== 'title')
+  // Compute suggestions from debounced input
+  const suggestions: Array<{ label: string; tag?: CommittedTag }> = useMemo(() => {
+    const trimmed = debouncedInput.trimEnd()
+    const lastWord = trimmed.split(/\s+/).pop() ?? ''
+    const negate = lastWord.startsWith('-')
+    const clean = negate ? lastWord.slice(1) : lastWord
 
-  // Current partial word being typed (for suggestions)
-  const parts = value.trim().split(/\s+/)
-  const lastPart = parts[parts.length - 1] ?? ''
-  const lastNegate = lastPart.startsWith('-')
-  const lastClean = lastNegate ? lastPart.slice(1) : lastPart
-  const colonIdx = lastClean.indexOf(':')
-  const isTypingTag = colonIdx > 0
-  const tagType = isTypingTag ? lastClean.slice(0, colonIdx).toLowerCase() : ''
-  const tagPartial = isTypingTag ? lastClean.slice(colonIdx + 1).replace(/_/g, ' ').toLowerCase() : lastClean.toLowerCase()
-
-  let suggestions: string[] = []
-  if (isTypingTag && tagPartial.length > 0) {
-    if (tagType === 'genre') {
-      suggestions = allGenres.filter((g) => g.toLowerCase().startsWith(tagPartial))
-    } else if (tagType === 'studio') {
-      suggestions = allStudios.filter((s) => s.toLowerCase().startsWith(tagPartial))
+    // User typed just '+', '-', or started with 'g'/'s' etc. → offer type prefixes
+    if (clean === '+' || clean === '') {
+      return [
+        { label: 'genre:', tag: undefined },
+        { label: 'studio:', tag: undefined },
+      ]
     }
-  } else if (!isTypingTag && tagPartial.length > 1) {
-    // Show both genre and studio suggestions for plain text
-    const genreHits = allGenres.filter((g) => g.toLowerCase().startsWith(tagPartial)).map((g) => `genre:${g}`)
-    const studioHits = allStudios.filter((s) => s.toLowerCase().startsWith(tagPartial)).map((s) => `studio:${s}`)
-    suggestions = [...genreHits.slice(0, 5), ...studioHits.slice(0, 5)]
-  }
-
-  const removeToken = (tokenIdx: number) => {
-    const token = tokens[tokenIdx]
-    if (!token) return
-    if (token.type === 'title') {
-      // Remove the plain-text portion
-      const newParts = value.trim().split(/\s+/).filter((p) => {
-        const neg = p.startsWith('-')
-        const cl = neg ? p.slice(1) : p
-        return cl.includes(':') // keep tag tokens
-      })
-      onChange(newParts.join(' '))
-    } else {
-      const prefix = token.negate ? '-' : ''
-      const tag = `${prefix}${token.type}:${token.value.replace(/ /g, '_')}`
-      // Remove this exact tag token from the search string
-      const remaining = value.trim().split(/\s+/).filter((p) => p !== tag && p !== `${prefix}${token.type}:${token.value}`)
-      onChange(remaining.join(' '))
+    if (clean === '-') {
+      return [
+        { label: '-genre:', tag: undefined },
+        { label: '-studio:', tag: undefined },
+      ]
     }
-  }
 
-  const applySuggestion = (suggestion: string) => {
-    const withUnderscore = suggestion.replace(/ /g, '_')
-    const restParts = parts.slice(0, -1)
-    onChange([...restParts, withUnderscore].join(' ').trim())
-    inputRef.current?.focus()
-  }
+    const colonIdx = clean.indexOf(':')
+
+    if (colonIdx > 0) {
+      // Typing inside a tag value
+      const type = clean.slice(0, colonIdx).toLowerCase()
+      const partial = clean.slice(colonIdx + 1).replace(/_/g, ' ').toLowerCase()
+      if (partial.length < 2) return []
+      const pool = type === 'genre' ? allGenres : type === 'studio' ? allStudios : []
+      return pool
+        .filter((x) => x.toLowerCase().startsWith(partial))
+        .slice(0, 3)
+        .map((x) => ({
+          label: `${negate ? '-' : ''}${type}:${x}`,
+          tag: { type: type as 'genre' | 'studio', value: x, negate } satisfies CommittedTag,
+        }))
+    }
+
+    // Plain text – suggest genre:/studio: prefixes matching the partial
+    if (clean.length < 2) return []
+    const partial = clean.toLowerCase()
+    const genreHits = allGenres
+      .filter((g) => g.toLowerCase().startsWith(partial))
+      .slice(0, 2)
+      .map((g) => ({
+        label: `genre:${g}`,
+        tag: { type: 'genre' as const, value: g, negate: false } satisfies CommittedTag,
+      }))
+    const studioHits = allStudios
+      .filter((s) => s.toLowerCase().startsWith(partial))
+      .slice(0, 2)
+      .map((s) => ({
+        label: `studio:${s}`,
+        tag: { type: 'studio' as const, value: s, negate: false } satisfies CommittedTag,
+      }))
+    return [...genreHits, ...studioHits].slice(0, 3)
+  }, [debouncedInput, allGenres, allStudios])
 
   const showSuggestions = focused && suggestions.length > 0
 
+  /** Commit a tag and remove it from the inputText */
+  const commitTag = useCallback(
+    (tag: CommittedTag, inputAfter: string) => {
+      setCommitted((prev) => {
+        const next = [...prev, tag]
+        const full = buildFullValue(next, inputAfter)
+        onChange(full)
+        return next
+      })
+      setInputText(inputAfter)
+    },
+    [onChange]
+  )
+
+  const removeCommitted = useCallback(
+    (idx: number) => {
+      setCommitted((prev) => {
+        const next = prev.filter((_, i) => i !== idx)
+        onChange(buildFullValue(next, inputText))
+        return next
+      })
+    },
+    [inputText, onChange]
+  )
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value
+
+    // Detect: user just typed a space after a complete tag token
+    if (val.endsWith(' ')) {
+      const words = val.trimEnd().split(/\s+/)
+      const lastWord = words[words.length - 1] ?? ''
+      const negate = lastWord.startsWith('-')
+      const clean = negate ? lastWord.slice(1) : lastWord
+      const colonIdx = clean.indexOf(':')
+      if (colonIdx > 0) {
+        const type = clean.slice(0, colonIdx).toLowerCase()
+        const tagVal = clean.slice(colonIdx + 1).replace(/_/g, ' ').trim()
+        if (tagVal && (type === 'genre' || type === 'studio')) {
+          const tag: CommittedTag = { type: type as 'genre' | 'studio', value: tagVal, negate }
+          const remainingInput = words.slice(0, -1).join(' ')
+          commitTag(tag, remainingInput)
+          return
+        }
+      }
+    }
+
+    setInputText(val)
+    onChange(buildFullValue(committed, val))
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Backspace' && inputText === '' && committed.length > 0) {
+      // Pop last committed tag back to input for editing
+      const last = committed[committed.length - 1]
+      const textForm = `${last.negate ? '-' : ''}${last.type}:${last.value.replace(/ /g, '_')}`
+      const next = committed.slice(0, -1)
+      setCommitted(next)
+      setInputText(textForm)
+      onChange(buildFullValue(next, textForm))
+    }
+  }
+
+  const applySuggestion = (suggestion: { label: string; tag?: CommittedTag }) => {
+    if (suggestion.tag) {
+      // Remove the partial from inputText that triggered this suggestion
+      const words = inputText.trimEnd().split(/\s+/)
+      const rest = words.slice(0, -1).join(' ')
+      commitTag(suggestion.tag, rest)
+    } else {
+      // Just a prefix like "genre:" or "-studio:" – put in input
+      const words = inputText.trimEnd().split(/\s+/)
+      const rest = [...words.slice(0, -1), suggestion.label].join(' ')
+      setInputText(rest)
+      onChange(buildFullValue(committed, rest))
+      requestAnimationFrame(() => inputRef.current?.focus())
+    }
+  }
+
+  const clearAll = () => {
+    setCommitted([])
+    setInputText('')
+    onChange('')
+  }
+
+  const hasAnything = committed.length > 0 || inputText.trim().length > 0
+
   return (
     <div className="relative flex-1">
-      {/* Tag + input row */}
       <div
         className="flex flex-wrap items-center gap-1.5 min-h-9 px-2.5 py-1.5 rounded-lg
           bg-kakera-primary-800 border border-kakera-primary-600
-          focus-within:border-kakera-accent transition-colors"
+          focus-within:border-kakera-accent transition-colors cursor-text"
         onClick={() => inputRef.current?.focus()}
       >
-        {/* Parsed tag badges */}
-        {tagTokens.map((token, i) => (
+        {/* Committed tag badges */}
+        {committed.map((tag, i) => (
           <span
             key={i}
             className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-medium shrink-0
-              ${token.negate ? 'bg-red-500/20 text-red-300' : 'bg-kakera-accent/20 text-kakera-accent-light'}`}
+              ${tag.negate ? 'bg-red-500/20 text-red-300' : 'bg-kakera-accent/20 text-kakera-accent-light'}`}
           >
-            <span className="opacity-60">{token.negate ? '−' : '+'}{token.type}:</span>
-            {token.value}
+            <span className="opacity-60">{tag.negate ? '−' : '+'}{tag.type}:</span>
+            {tag.value}
             <button
               type="button"
-              onClick={(e) => { e.stopPropagation(); removeToken(tokens.indexOf(token)) }}
+              onMouseDown={(e) => { e.preventDefault(); removeCommitted(i) }}
               className="hover:opacity-75 focus-visible:outline-none"
-              aria-label={`Remove ${token.type} filter`}
+              aria-label={`Remove ${tag.type} filter`}
             >
               <X size={10} />
             </button>
           </span>
         ))}
-        {/* Text input for title/raw part */}
+        {/* Text input */}
         <input
           ref={inputRef}
           type="text"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
+          value={inputText}
+          onChange={handleInputChange}
+          onKeyDown={handleKeyDown}
           onFocus={() => setFocused(true)}
           onBlur={() => setTimeout(() => setFocused(false), 150)}
-          placeholder={tagTokens.length > 0 ? (titleToken ? undefined : 'Add more filters…') : 'Search anime, studio:Bones, genre:Action…'}
-          className="flex-1 min-w-20 bg-transparent text-sm text-white placeholder-kakera-muted outline-none"
+          placeholder={committed.length > 0 ? 'Add more filters…' : 'Search anime, studio:Bones, genre:Action…'}
+          className="flex-1 min-w-24 bg-transparent text-sm text-kakera-primary-100 placeholder-kakera-muted outline-none"
           aria-label="Search anime"
           autoComplete="off"
         />
-        {value && (
+        {hasAnything && (
           <button
             type="button"
-            onClick={() => onChange('')}
+            onMouseDown={(e) => { e.preventDefault(); clearAll() }}
             className="text-kakera-muted hover:text-white transition-colors"
             aria-label="Clear search"
           >
@@ -183,22 +337,26 @@ function SmartSearch({ value, onChange, allEntries }: SmartSearchProps) {
       {/* Suggestions dropdown */}
       {showSuggestions && (
         <div className="absolute top-full mt-1 left-0 right-0 z-50 bg-kakera-primary-800 border border-kakera-primary-600 rounded-lg shadow-xl overflow-hidden">
-          {suggestions.slice(0, 10).map((s) => {
-            const isTag = s.includes(':')
-            const [type, val] = isTag ? s.split(':') : ['', s]
+          {suggestions.map((s) => {
+            const colonIdx = s.label.indexOf(':')
+            const isTag = colonIdx > 0
+            const prefix = isTag ? s.label.slice(0, colonIdx + 1) : ''
+            const rest = isTag ? s.label.slice(colonIdx + 1) : s.label
             return (
               <button
-                key={s}
+                key={s.label}
                 type="button"
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => applySuggestion(s)}
-                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-left
-                  hover:bg-kakera-primary-700 transition-colors"
+                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-kakera-primary-700 transition-colors"
               >
                 {isTag && (
-                  <Badge variant="default" className="shrink-0 text-[10px]">{type}</Badge>
+                  <span className={`shrink-0 px-1.5 py-0.5 rounded text-[10px] font-semibold
+                    ${s.label.startsWith('-') ? 'bg-red-500/20 text-red-300' : 'bg-kakera-accent/20 text-kakera-accent-light'}`}>
+                    {prefix}
+                  </span>
                 )}
-                <span className="text-white">{val ?? s}</span>
+                <span className="text-kakera-primary-200">{rest || s.label}</span>
               </button>
             )
           })}
@@ -229,7 +387,6 @@ export function LibraryFilters({ collectionAnimeIds }: LibraryFiltersProps) {
         <SmartSearch
           value={filters.search}
           onChange={handleSearch}
-          entries={filteredEntries}
           allEntries={allEntries}
         />
         <Select
@@ -271,3 +428,4 @@ export function LibraryFilters({ collectionAnimeIds }: LibraryFiltersProps) {
     </div>
   )
 }
+

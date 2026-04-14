@@ -8,6 +8,13 @@ import { useCollectionsStore } from '@/stores/collectionsStore'
 import { useLibraryStore } from '@/stores/libraryStore'
 import { Tooltip } from '@/components/ui/Tooltip'
 import { Plus, Library } from 'lucide-react'
+import * as LucideIcons from 'lucide-react'
+
+function CollectionIcon({ icon, size = 14 }: { icon: string; size?: number }) {
+  const Icon = (LucideIcons as Record<string, unknown>)[icon] as React.ComponentType<{ size?: number }> | undefined
+  if (Icon) return <Icon size={size} />
+  return <span style={{ fontSize: size }}>{icon}</span>
+}
 
 function CollectionSidebar() {
   const collections = useCollectionsStore((s) => s.collections)
@@ -31,7 +38,7 @@ function CollectionSidebar() {
             focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kakera-accent
             ${selectedCollectionId === null
               ? 'bg-kakera-accent text-white'
-              : 'text-kakera-primary-300 hover:bg-kakera-primary-800 hover:text-white'
+              : 'text-kakera-primary-300 hover:bg-kakera-primary-800 hover:text-kakera-primary-100'
             }`}
           aria-current={selectedCollectionId === null ? 'true' : undefined}
         >
@@ -52,12 +59,14 @@ function CollectionSidebar() {
                 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kakera-accent
                 ${isActive
                   ? 'bg-kakera-accent text-white'
-                  : 'text-kakera-primary-300 hover:bg-kakera-primary-800 hover:text-white'
+                  : 'text-kakera-primary-300 hover:bg-kakera-primary-800 hover:text-kakera-primary-100'
                 }`}
               style={isActive ? undefined : { borderLeftColor: col.color, borderLeftWidth: 2 }}
               aria-current={isActive ? 'true' : undefined}
             >
-              <span className="text-base shrink-0">{col.icon}</span>
+              <span className="shrink-0" style={{ color: isActive ? 'white' : col.color }}>
+                <CollectionIcon icon={col.icon} size={14} />
+              </span>
               <span className="flex-1 truncate">{col.name}</span>
               <span className="text-xs opacity-60 tabular-nums">{count}</span>
             </button>
@@ -70,7 +79,7 @@ function CollectionSidebar() {
             onClick={() => setEditorOpen(true)}
             aria-label="Create new collection"
             className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-kakera-primary-400
-              hover:bg-kakera-primary-800 hover:text-white transition-colors
+              hover:bg-kakera-primary-800 hover:text-kakera-primary-100 transition-colors
               focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kakera-accent"
           >
             <Plus size={14} className="shrink-0" />
@@ -89,13 +98,14 @@ function LibraryContent({ isLoading }: { isLoading: boolean }) {
   const activeCollection = collections.find((c) => c.id === selectedCollectionId) ?? null
   const collectionAnimeIds = activeCollection?.animeIds
 
-  // Pass collectionAnimeIds down so LibraryGrid and count label use the same base
   return (
     <div className="flex flex-col gap-4 flex-1 min-w-0">
       {activeCollection && (
         <div className="flex items-center gap-2">
-          <span className="text-xl">{activeCollection.icon}</span>
-          <h2 className="text-base font-semibold text-white">{activeCollection.name}</h2>
+          <span style={{ color: activeCollection.color }}>
+            <CollectionIcon icon={activeCollection.icon} size={18} />
+          </span>
+          <h2 className="text-base font-semibold text-kakera-primary-100">{activeCollection.name}</h2>
           {activeCollection.description && (
             <span className="text-sm text-kakera-muted">— {activeCollection.description}</span>
           )}

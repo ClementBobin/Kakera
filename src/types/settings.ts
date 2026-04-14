@@ -16,7 +16,6 @@ export interface OverlaySettings {
   showDownloadedCount: boolean
   showUnwatchedCount: boolean
   showLocalSource: boolean
-  showLanguage: boolean
   showResumeButton: boolean
 }
 

@@ -23,7 +23,7 @@ export function AppLayout({ currentPage, onNavigate, children }: AppLayoutProps)
   const isSyncing = useLibraryStore((s) => s.isSyncing)
 
   return (
-    <div className="flex flex-col h-screen bg-kakera-primary-950 text-white overflow-hidden">
+    <div className="flex flex-col h-screen bg-kakera-primary-950 text-kakera-primary-50 overflow-hidden">
       {/* Top navigation bar — also acts as drag region for the Tauri window */}
       <nav
         data-tauri-drag-region
