@@ -1,6 +1,15 @@
 export type DisplayMode = 'grid_compact' | 'grid_spacious' | 'grid_cover_only' | 'list'
 export type Theme = 'light' | 'dark' | 'auto'
-export type ThemePreset = 'slate' | 'wallbash'
+export type ThemePreset =
+  | 'slate'
+  | 'wallbash'
+  | 'cloudflare'
+  | 'barbe-a-papa'
+  | 'doom'
+  | 'pomme-verte'
+  | 'lavande'
+  | 'matrix'
+  | 'crepuscule-de-minuit'
 export type VideoQuality = '360p' | '720p' | '1080p' | 'best'
 
 export interface OverlaySettings {

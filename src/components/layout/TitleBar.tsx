@@ -2,10 +2,10 @@ export function TitleBar() {
   return (
     <div
       data-tauri-drag-region
-      className="h-9 flex items-center justify-between px-4 bg-kakera-primary-950 border-b border-kakera-primary-800 select-none"
+      className="h-8 flex items-center justify-between px-3 bg-kakera-primary-950 select-none shrink-0"
     >
-      <span className="text-xs font-semibold text-kakera-accent tracking-widest">KAKERA</span>
-      <div className="flex gap-1">
+      <span className="text-xs font-bold text-kakera-accent tracking-widest">KAKERA</span>
+      <div className="flex gap-1.5">
         <button
           className="w-3 h-3 rounded-full bg-yellow-400 hover:bg-yellow-300 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-yellow-200"
           aria-label="Minimize window"

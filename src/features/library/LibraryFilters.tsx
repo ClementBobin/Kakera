@@ -32,7 +32,6 @@ export function LibraryFilters() {
   const filters = useLibraryStore((s) => s.filters)
   const setFilter = useLibraryStore((s) => s.setFilter)
   const showCategoryTabs = useSettingsStore((s) => s.settings.tabs.showCategoryTabs)
-  const showEntryCount = useSettingsStore((s) => s.settings.tabs.showEntryCount)
   const filteredEntries = useFilteredEntries()
 
   const handleSearch = useCallback(
@@ -41,11 +40,6 @@ export function LibraryFilters() {
     },
     [setFilter]
   )
-
-  const tabItems = STATUS_TABS.map((tab) => ({
-    ...tab,
-    count: showEntryCount ? filteredEntries.length : undefined,
-  }))
 
   return (
     <div className="flex flex-col gap-3">
@@ -66,12 +60,17 @@ export function LibraryFilters() {
         />
       </div>
       {showCategoryTabs && (
-        <div className="overflow-x-auto">
-          <Tabs
-            items={tabItems}
-            value={filters.status}
-            onChange={(v) => setFilter('status', v as FilterStatus)}
-          />
+        <div className="flex items-center gap-3">
+          <div className="overflow-x-auto flex-1">
+            <Tabs
+              items={STATUS_TABS}
+              value={filters.status}
+              onChange={(v) => setFilter('status', v as FilterStatus)}
+            />
+          </div>
+          <span className="text-xs text-kakera-muted shrink-0 tabular-nums">
+            {filteredEntries.length} {filteredEntries.length === 1 ? 'anime' : 'anime'}
+          </span>
         </div>
       )}
     </div>
